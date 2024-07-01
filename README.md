@@ -1,6 +1,6 @@
-# example-exercise
+# unet-exercise
 
-This is an example exercise repo for DL@MBL. Please see the exercise guidelines for more information.
+In this exercise repo for DL@MBL you will learn about the U-Net and implement a configurable version yourself. Please see the exercise guidelines for more information.
 
 ## Setup
 
