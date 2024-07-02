@@ -97,7 +97,7 @@ sample_2d_input.shape, sample_2d_input
 #     </ol>
 # </div>
 
-# %% tags=[]
+# %% tags=["task"]
 # TASK 1.1: initialize  an upsample module
 up = ...  # YOUR CODE HERE
 
@@ -105,7 +105,7 @@ up = ...  # YOUR CODE HERE
 
 # YOUR CODE HERE
 
-# %% tags=[]
+# %% tags=["task"]
 # TASK 1.3: vary scale factor and mode
 # YOUR CODE HERE
 
@@ -115,6 +115,11 @@ up = torch.nn.Upsample(scale_factor=2, mode="nearest")
 
 # SOLUTION 1.2: apply your upsample module to `sample_2d_input`
 up(sample_2d_input)
+
+# %% tags=["solution"]
+# TASK 1.3: vary scale factor and mode
+up3 = torch.nn.Upsample(scale_factor=3, mode="nearest")
+up3(sample_2d_input)
 
 # %% [markdown] tags=[]
 # Here is an additional example on image data.
@@ -140,7 +145,7 @@ sample_2d_input
 #         try initializing the module and applying it to the sample input. Try varying the parameters to see how the output changes.
 #         </p>
 
-# %% tags=[]
+# %% tags=["task"]
 # TASK 2A: Initialize max pooling and apply to sample input
 # YOUR CODE HERE
 
@@ -161,7 +166,7 @@ max_pool(sample_2d_input)
 # </div>
 
 
-# %% tags=[]
+# %% tags=["task"]
 class Downsample(torch.nn.Module):
     def __init__(self, downsample_factor: int):
         """Initialize a MaxPool2d module with the input downsample fator"""
@@ -270,7 +275,7 @@ unet_tests.TestDown(Downsample).run()
 # If you get stuck, refer back to the <a href=https://pytorch.org/docs/stable/notes/modules.html>Module</a> documentation for hints and examples of how to define a PyTorch Module.
 
 
-# %% tags=[]
+# %% tags=["task"]
 class ConvBlock(torch.nn.Module):
     def __init__(
         self,
@@ -406,7 +411,7 @@ apply_and_show_random_image(conv, dataset)
 # </div>
 
 
-# %% tags=[]
+# %% tags=["task"]
 class CropAndConcat(torch.nn.Module):
     def crop(self, x, y):
         """Center-crop x to match spatial dimensions given by y."""
@@ -464,7 +469,7 @@ unet_tests.TestCropAndConcat(CropAndConcat).run()
 # </div>
 
 
-# %% tags=[]
+# %% tags=["task"]
 class OutputConv(torch.nn.Module):
     def __init__(
         self,
@@ -576,7 +581,7 @@ apply_and_show_random_image(out_conv, dataset)
 # </div>
 
 
-# %% tags=[]
+# %% tags=["task"]
 class UNet(torch.nn.Module):
     def __init__(
         self,
@@ -893,7 +898,7 @@ apply_and_show_random_image(simple_net, dataset)
 #     <p>The <code>plot_receptive_field</code> function visualizes the receptive field of a given U-Net - the square shows how many input pixels contribute to the output at the center pixel. Try it out with different U-Nets to get a sense of how varying the depth, kernel size, and downsample factor affect the receptive field of a U-Net.</p>
 # </div>
 
-# %% tags=[]
+# %% tags=["task"]
 from local import plot_receptive_field
 
 new_net = ...  # TASK 7: declare your U-Net here
@@ -943,7 +948,7 @@ train_loader = DataLoader(train_dataset)
 loss_function: torch.nn.Module = torch.nn.MSELoss()
 
 
-# %% tags=["solution"]
+# %% tags=[]
 def crop(x, target):
     """Center-crop x to match spatial dimensions given by target."""
 
@@ -1058,7 +1063,7 @@ def train(
 #         </ol>
 # </div>
 
-# %% tags=[]
+# %% tags=["task"]
 model = ...  # TASK 8.1: Declare your U-Net here and name it below
 model_name = "my_fav_unet"  # This name will be used in the tensorboard logs
 logger = SummaryWriter(f"unet_runs/{model_name}")
