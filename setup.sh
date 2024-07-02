@@ -6,7 +6,7 @@ conda activate 002-unet-exercise
 # Install additional requirements
 if [[ "$CONDA_DEFAULT_ENV" == "002-unet-exercise" ]]; then
     echo "Environment activated successfully for package installs"
-    conda install numpy pandas matplotlib
+    conda install -c pytorch -c nvicida -c conda-forge --file requirements.txt -y
 else
     echo "Failed to activate environment for package installs. Dependencies not installed!"
 conda deactivate
