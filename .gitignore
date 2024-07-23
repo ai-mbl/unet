@@ -1,0 +1,5 @@
+.ipynb_checkpoints/*
+.mypy_cache/*
+nuclei_train_data/*
+nuclei_val_data/*
+__pycache__/*
