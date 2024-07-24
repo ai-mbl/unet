@@ -1,9 +1,11 @@
 import numpy as np
 import torch
 
+
 class TestDown:
     def __init__(self, down_module):
         self.down_module = down_module
+
     def test_shape_checker(self) -> None:
         down2 = self.down_module(2)
         msg = "Your `check_valid` function is not right yet."
@@ -21,14 +23,17 @@ class TestDown:
         assert expected.shape == down2(tensor2).shape, msg
         msg = "The ouput shape of your Downsample module is correct, but the values are not."
         assert torch.equal(expected, down2(tensor2)), msg
+
     def run(self):
         self.test_shape_checker()
         self.test_shape()
         print("TESTS PASSED")
 
+
 class TestConvBlock:
     def __init__(self, conv_module):
         self.conv_module = conv_module
+
     def test_shape_valid(self) -> None:
         shape = [20, 30]
         channels = 4
@@ -36,9 +41,7 @@ class TestConvBlock:
         kernel_size = 7
 
         tensor_in = torch.ones([channels, *shape])
-        conv = self.conv_module(
-            channels, out_channels, kernel_size, padding="valid"
-        )
+        conv = self.conv_module(channels, out_channels, kernel_size, padding="valid")
         tensor_out = conv(tensor_in)
 
         shape_expected = list(np.array(shape) - 2 * (kernel_size - 1))
@@ -68,6 +71,7 @@ class TestConvBlock:
         tensor_out = conv(tensor_in)
         msg = "Your activation function is incorrect."
         assert torch.all(tensor_out >= 0), msg
+
     def run(self):
         self.test_shape_valid()
         self.test_shape_same()
@@ -79,6 +83,7 @@ class TestConvBlock:
 class TestCropAndConcat:
     def __init__(self, ccmodule):
         self.ccmodule = ccmodule
+
     def test_crop(self) -> None:
         big_tensor = torch.ones((12, 14, 40, 50))
         small_tensor = torch.zeros((12, 5, 13, 18))
@@ -89,27 +94,32 @@ class TestCropAndConcat:
         )
         msg = "Your CropAndConcat node does not give the expected output"
         assert torch.equal(out_tensor, expected_tensor), msg
+
     def run(self):
         self.test_crop()
         print("TESTS PASSED")
 
+
 class TestOutputConv:
     def __init__(self, outconvmodule):
         self.outconvmodule = outconvmodule
-        
+
     def test_channels(self) -> None:
         outconv = self.outconvmodule(3, 30, activation=torch.nn.Softshrink())
         tensor = torch.ones((3, 24, 17))
         tensor_out = outconv(tensor)
         msg = "The output shape of your output conv is not right."
         assert tensor_out.shape == torch.Size((30, 24, 17)), msg
+
     def run(self):
         self.test_channels()
         print("TESTS PASSED")
 
+
 class TestUNet:
     def __init__(self, unetmodule):
         self.unetmodule = unetmodule
+
     def test_fmaps(self) -> None:
         unet = self.unetmodule(5, 1, 1, num_fmaps=17, fmap_inc_factor=4)
         msg = "The computation of number of feature maps in the encoder is incorrect"
@@ -152,6 +162,7 @@ class TestUNet:
         assert unetsame(torch.ones((2, 2, 243, 243))).shape == torch.Size(
             (2, 7, 243, 243)
         ), msg
+
     def run(self):
         self.test_fmaps()
         self.test_shape_valid()

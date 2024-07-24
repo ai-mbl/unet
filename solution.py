@@ -24,17 +24,10 @@
 # %%
 # %matplotlib inline
 # %load_ext tensorboard
-import os
-from pathlib import Path
-import imageio
-import matplotlib.pyplot as plt
-import numpy as np
-from PIL import Image
 import torch
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from torchvision import transforms
-from typing import Optional
 
 from local import (
     NucleiDataset,
@@ -504,7 +497,7 @@ class OutputConv(torch.nn.Module):
 
         # TASK 5.1: Define the convolution submodule
         # YOUR CODE HERE
-        
+
         self.activation = activation
 
     def forward(self, x):
