@@ -382,6 +382,15 @@ conv = ConvBlock(1, 2, 5, "same")
 apply_and_show_random_image(conv, dataset)
 
 
+# %% [markdown]
+# <div class="alert alert-warning">
+#
+# <h4>Question: Padding</h4>
+# As you saw, the convolution modules in pytorch allow you to directly use the keywords `"valid"` or `"same"` for your padding mode. How would you go about calculating the amount of padding you need based on the kernel size?
+#
+# If you'd like, you can test your assumption by editing the `ConvBlock` to pass your own calculated value to the `padding` keyword in the conv module and rerun the test
+# </div>
+
 # %% [markdown] tags=[]
 # ### Component 4: Skip Connections and Concatenation
 
@@ -927,18 +936,6 @@ loss_function: torch.nn.Module = torch.nn.MSELoss()
 
 
 # %% tags=[]
-def crop(x, target):
-    """Center-crop x to match spatial dimensions given by target."""
-
-    x_target_size = x.size()[:-2] + target.size()[-2:]
-
-    offset = tuple((a - b) // 2 for a, b in zip(x.size(), x_target_size))
-
-    slices = tuple(slice(o, o + s) for o, s in zip(offset, x_target_size))
-
-    return x[slices]
-
-
 # apply training for one epoch
 def train(
     model,
@@ -979,7 +976,7 @@ def train(
         prediction = model(x)
         # if necessary, crop the masks to match the model output shape
         if prediction.shape != y.shape:
-            y = crop(y, prediction)
+            y = center_crop(y, prediction)
         if y.dtype != prediction.dtype:
             y = y.type(prediction.dtype)
         loss = loss_function(prediction, y)
