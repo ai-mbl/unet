@@ -394,7 +394,7 @@ apply_and_show_random_image(conv, dataset)
 # %% [markdown] tags=[]
 # <div class="alert alert-block alert-info">
 #     <h4>Task 4: Implement a CropAndConcat module</h4>
-#     <p>Below, you must implement the <code>forward</code> method, including the cropping (using the provided helper function <code>self.crop</code>) and the concatenation (using <a href=https://pytorch.org/docs/stable/generated/torch.cat.html#torch.cat>torch.cat</a>).
+#     <p>Below, you must implement the <code>forward</code> method, including the cropping (using the provided helper function <code>center_crop</code>) and the concatenation (using <a href=https://pytorch.org/docs/stable/generated/torch.cat.html#torch.cat>torch.cat</a>).
 # </p>
 # Hint: Use the <code>dim</code> keyword argument of <a href=https://pytorch.org/docs/stable/generated/torch.cat.html#torch.cat>torch.cat</a> to choose along which axis to concatenate the tensors.
 # </p>
@@ -403,39 +403,39 @@ apply_and_show_random_image(conv, dataset)
 
 
 # %% tags=["task"]
+def center_crop(x,y):
+    """Center-crop x to match spatial dimensions given by y."""
+
+    x_target_size = x.size()[:2] + y.size()[2:]
+
+    offset = tuple((a - b) // 2 for a, b in zip(x.size(), x_target_size))
+
+    slices = tuple(slice(o, o + s) for o, s in zip(offset, x_target_size))
+
+    return x[slices]
+
 class CropAndConcat(torch.nn.Module):
-    def crop(self, x, y):
-        """Center-crop x to match spatial dimensions given by y."""
-
-        x_target_size = x.size()[:2] + y.size()[2:]
-
-        offset = tuple((a - b) // 2 for a, b in zip(x.size(), x_target_size))
-
-        slices = tuple(slice(o, o + s) for o, s in zip(offset, x_target_size))
-
-        return x[slices]
-
     def forward(self, encoder_output, upsample_output):
         # TASK 4: Implement the forward function
         ...
 
 
 # %% tags=["solution"]
+def center_crop(x,y):
+    """Center-crop x to match spatial dimensions given by y."""
+
+    x_target_size = x.size()[:2] + y.size()[2:]
+
+    offset = tuple((a - b) // 2 for a, b in zip(x.size(), x_target_size))
+
+    slices = tuple(slice(o, o + s) for o, s in zip(offset, x_target_size))
+
+    return x[slices]
+
 class CropAndConcat(torch.nn.Module):
-    def crop(self, x, y):
-        """Center-crop x to match spatial dimensions given by y."""
-
-        x_target_size = x.size()[:-2] + y.size()[-2:]
-
-        offset = tuple((a - b) // 2 for a, b in zip(x.size(), x_target_size))
-
-        slices = tuple(slice(o, o + s) for o, s in zip(offset, x_target_size))
-
-        return x[slices]
-
     def forward(self, encoder_output, upsample_output):
         # SOLUTION 4: Implement the forward function
-        encoder_cropped = self.crop(encoder_output, upsample_output)
+        encoder_cropped = center_crop(encoder_output, upsample_output)
 
         return torch.cat([encoder_cropped, upsample_output], dim=1)
 
