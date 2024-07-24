@@ -21,10 +21,8 @@ def show_one_image(image_path):
 class NucleiDataset(Dataset):
     """A PyTorch dataset to load cell images and nuclei masks"""
 
-    def __init__(self, root_dir, transform=None, img_transform=None):
-        self.root_dir = (
-            "/group/dl4miacourse/segmentation/" + root_dir
-        )  # the directory with all the training samples
+    def __init__(self, root_dir = ".", transform=None, img_transform=None):
+        self.root_dir = root_dir  # the directory with all the training samples
         self.samples = os.listdir(self.root_dir)  # list the samples
         self.transform = (
             transform  # transformations to apply to both inputs and targets
