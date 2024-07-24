@@ -2,4 +2,5 @@
 .mypy_cache/*
 nuclei_train_data/*
 nuclei_val_data/*
+unet_runs/*
 __pycache__/*
