@@ -3,7 +3,16 @@
 #
 # <hr style="height:2px;">
 #
-# In this notebook, we will build and train our own U-Net, with the goal of understanding the architecture and being able to use it for many different tasks in the rest of the course.
+# In this notebook, we will implement a U-Net architecture. Through this exercise you should gain an understanding of the U-Net architecture in particular as well as learn how to approach the implementation of an architecture in general and familiarize yourself a bit more with the inner workings of pytorch.
+#
+# The exercise is split into three parts:
+#
+# In part 1 you will implement the building blocks of the U-Net. That includes the convolutions, downsampling, upsampling and skip connections. We will go in the order of how difficult they are to implement.
+#
+# In part 2 you will combine the modules you've built in part 1 to implement the U-Net module and then see how hyperparameters influence its receptive field size.
+#
+# Finally, in part 3 you will train your first U-Net of the course! This will just be a first flavor though since you will learn much more about that in the next exercise.
+#
 #
 # Written by Larissa Heinrich, Caroline Malin-Mayor, and Morgan Schwartz, with inspiration from William Patton.
 
@@ -42,7 +51,7 @@ assert torch.cuda.is_available()
 
 # %% [markdown]
 # ## The Dataset
-# For our segmentation exercises, we will be using a nucleus segmentation dataset from [Kaggle 2018 Data Science Bowl](https://www.kaggle.com/c/data-science-bowl-2018/data). We have pre-downloaded the dataset to the shared drive and provded a pytorch Dataset called `NucleiDataset` to use for training. In this exercise, we will create a U-Net and train it to classify foreground and background, but focus on the U-Net itself - you will learn more about semantic segmentation in the next exercise.
+# For our segmentation exercises, we will be using a nucleus segmentation dataset from [Kaggle 2018 Data Science Bowl](https://www.kaggle.com/c/data-science-bowl-2018/data). We have downloaded the dataset during setup and we provided a pytorch Dataset called `NucleiDataset` which we will use for training later. In addition to training, we will use these images to visualize the output of the individual building blocks of the U-Net we will be implementing.
 # Below, we create a dataset and then visualize a random image.
 
 # %%
@@ -67,7 +76,7 @@ show_random_dataset_image(dataset)
 # ### Component 1: Upsampling
 
 # %% [markdown] tags=[]
-# We will start with the Upsample module that we will use in our U-Net. The right side of the U-Net contains upsampling between the layers. There are many ways to upsample: in the example above, they use a 2x2 transposed convolution, but we will use the PyTorch Upsample Module [torch.nn.Upsample](https://pytorch.org/docs/stable/generated/torch.nn.Upsample.html#torch.nn.Upsample).
+# We will start with the Upsample module that we will use in our U-Net. The right side of the U-Net contains upsampling between the levels. There are many ways to upsample: in the original U-Net, they use a transposed convolution, but this has since fallen a bit out of fashion so we will use the PyTorch Upsample Module [torch.nn.Upsample](https://pytorch.org/docs/stable/generated/torch.nn.Upsample.html#torch.nn.Upsample) instead.
 
 
 # %% [markdown] tags=[]
@@ -118,7 +127,7 @@ up(sample_2d_input)
 
 # %% tags=["solution"]
 # TASK 1.3: vary scale factor and mode
-up3 = torch.nn.Upsample(scale_factor=3, mode="nearest")
+up3 = torch.nn.Upsample(scale_factor=3, mode="bilinear")
 up3(sample_2d_input)
 
 # %% [markdown] tags=[]
@@ -131,18 +140,18 @@ apply_and_show_random_image(up, dataset)
 # ### Component 2: Downsampling
 
 # %% [markdown] tags=[]
-# Between each layer of the U-Net on the left side, there is a downsample step. Traditionally, this is done with a 2x2 max pooling operation. There are other ways to downsample, for example with average pooling, but we will stick with max pooling for this exercise.
+# Between levels of the U-Net on the left side, there is a downsample step. Traditionally, this is done with a 2x2 max pooling operation. There are other ways to downsample, for example with average pooling, but we will stick with max pooling for this exercise.
 
 
 # %% tags=[]
-sample_2d_input = torch.tensor(np.arange(16, dtype=np.float64).reshape((1, 1, 4, 4)))
+sample_2d_input = torch.randint(0, 10, (1, 1, 6, 6))
 sample_2d_input
 
 # %% [markdown] tags=[]
 # <div class="alert alert-block alert-info">
 #     <h4>Task 2A: Try out max pooling</h4>
 #         <p>Using the docs for <a href=https://pytorch.org/docs/stable/generated/torch.nn.MaxPool2d.html>torch.nn.MaxPool2d</a>,
-#         try initializing the module and applying it to the sample input. Try varying the parameters to see how the output changes.
+#         try initializing the module and applying it to the sample input. Try varying the parameters to understand the effect of <code>kernel_size</code> and <code>stride</code>.
 #         </p>
 
 # %% tags=["task"]
@@ -174,12 +183,12 @@ class Downsample(torch.nn.Module):
         super().__init__()
 
         self.downsample_factor = downsample_factor
-        # TASK 2B1: Initialize the downsample module
+        # TASK 2B1: Initialize the maxpool module
         self.down = ...  # YOUR CODE HERE
 
     def check_valid(self, image_size: tuple[int, int]) -> bool:
-        """Check if the downsample factor evenly divides each image dimension
-        Note: there are multiple ways to do this!
+        """Check if the downsample factor evenly divides each image dimension.
+        Returns `True` for valid image sizes and `False` for invalid image sizes.
         """
         # TASK 2B2: Check that the image_size is valid to use with the downsample factor
         # YOUR CODE HERE
@@ -202,12 +211,12 @@ class Downsample(torch.nn.Module):
         super().__init__()
 
         self.downsample_factor = downsample_factor
-        # SOLUTION 2B1: Initialize the downsample module
+        # SOLUTION 2B1: Initialize the maxpool module
         self.down = torch.nn.MaxPool2d(downsample_factor)
 
     def check_valid(self, image_size: tuple[int, int]) -> bool:
-        """Check if the downsample factor evenly divides each image dimension
-        Note: there are multiple ways to do this!
+        """Check if the downsample factor evenly divides each image dimension.
+        Returns `True` for valid image sizes and `False` for invalid image sizes.
         """
         # SOLUTION 2B2: Check that the image_size is valid to use with the downsample factor
         for dim in image_size:
@@ -253,6 +262,8 @@ unet_tests.TestDown(Downsample).run()
 # #### Padding
 #
 # You will notice that at the edges of the input, this animation shows greyed out values that extend past the input. This is known as padding the input. This example uses "same" padding, which means the values at the edges are repeated. The other option we will use in this exercise is "valid" padding, which essentially means no padding. In the case of valid padding, the output will be smaller than the input, as values at the edges of the output will not be computed. "Same" padding can introduce edge artifacts, but "valid" padding reduces the output size at every convolution. Note that the amount of padding (for same) and the amount of size lost (for valid) depends on the size of the kernel - a 3x3 convolution would require padding of 1, a 5x5 convolution would require a padding of 2, and so on.
+#
+# Additionally, there are different modes of padding that determine what strategy is used to make up the values for padding. In the animation above the mode is re-using values from the border. Even more commonly, the image is simply padded with zeros.
 
 
 # %% [markdown] tags=[]
@@ -1041,7 +1052,9 @@ def train(
 
 
 # %% [markdown] tags=[]
-# Now we start our Tensorboard server and show it inside the notebook. We haven't logged anything yet so you'll see "No dashboards are active for the current data set." After you start training, you may need to press the refresh button in the top right to see the logs. When looking at the loss, we recommend smoothing (slider in the settings toolbar) because the raw numbers are very noisy.
+# Now we start our Tensorboard server and show it inside the notebook. We haven't logged anything yet so you'll see "No dashboards are active for the current data set." After you start training, you may need to press the refresh button in the top right to see the logs. When looking at the loss, we recommend smoothing (slider in the settings toolbar) because the raw numbers are very noisy
+#
+# If you don't see _anything_, try running the cell again.
 
 # %% tags=[]
 # start a tensorboard writer
