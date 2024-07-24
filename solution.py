@@ -23,9 +23,10 @@
 #
 # ## The libraries
 
-# %%
+# %% tags=[]
 # %matplotlib inline
 # %load_ext tensorboard
+import numpy as np
 import torch
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
@@ -39,20 +40,20 @@ from local import (
 )
 import unet_tests
 
-# %%
+# %% tags=[]
 # make sure gpu is available. Please call a TA if this cell fails
 assert torch.cuda.is_available()
 
 
-# %% [markdown]
+# %% [markdown] tags=[]
 # ## The Dataset
 # For our segmentation exercises, we will be using a nucleus segmentation dataset from [Kaggle 2018 Data Science Bowl](https://www.kaggle.com/c/data-science-bowl-2018/data). We have downloaded the dataset during setup and we provided a pytorch Dataset called `NucleiDataset` which we will use for training later. In addition to training, we will use these images to visualize the output of the individual building blocks of the U-Net we will be implementing.
 # Below, we create a dataset and then visualize a random image.
 
-# %%
+# %% tags=[]
 dataset = NucleiDataset("nuclei_train_data")
 
-# %%
+# %% tags=[]
 show_random_dataset_image(dataset)
 
 # %% [markdown]
@@ -139,6 +140,7 @@ apply_and_show_random_image(up, dataset)
 
 
 # %% tags=[]
+sample_2d_input = torch.tensor(np.arange(25, dtype=np.float64).reshape((1, 1, 5, 5)))
 sample_2d_input = torch.randint(0, 10, (1, 1, 6, 6))
 sample_2d_input
 
@@ -184,6 +186,7 @@ class Downsample(torch.nn.Module):
     def check_valid(self, image_size: tuple[int, int]) -> bool:
         """Check if the downsample factor evenly divides each image dimension.
         Returns `True` for valid image sizes and `False` for invalid image sizes.
+        Note: there are multiple ways to do this!
         """
         # TASK 2B2: Check that the image_size is valid to use with the downsample factor
         # YOUR CODE HERE
@@ -212,6 +215,7 @@ class Downsample(torch.nn.Module):
     def check_valid(self, image_size: tuple[int, int]) -> bool:
         """Check if the downsample factor evenly divides each image dimension.
         Returns `True` for valid image sizes and `False` for invalid image sizes.
+        Note: there are multiple ways to do this!
         """
         # SOLUTION 2B2: Check that the image_size is valid to use with the downsample factor
         for dim in image_size:
@@ -678,8 +682,8 @@ class UNet(torch.nn.Module):
         for i in range(0, self.depth - 1)[::-1]:
             # TASK 6.4C: Implement decoder here
             ...
-
-        return  # TASK 6.4D: Return the final output
+        # TASK 6.4D: Apply the final convolution and return the output
+        return
 
 
 # %% tags=["solution"]
@@ -845,7 +849,7 @@ class UNet(torch.nn.Module):
             conv_output = self.right_convs[i](concat)
             layer_input = conv_output
 
-        # SOLUTION 6.4D: Return the final output
+        # SOLUTION 6.4D: Apply the final convolution and return the output
         return self.final_conv(layer_input)
 
 
