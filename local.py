@@ -1,16 +1,13 @@
 import os
+
 import imageio
 import matplotlib.pyplot as plt
-from matplotlib import gridspec, ticker
 import numpy as np
-from PIL import Image
 import torch
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from PIL import Image
 from torch.utils.data import Dataset
 from torchvision import transforms
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-
-from skimage.segmentation import relabel_sequential
-from scipy.optimize import linear_sum_assignment
 
 
 def show_one_image(image_path):
@@ -21,7 +18,7 @@ def show_one_image(image_path):
 class NucleiDataset(Dataset):
     """A PyTorch dataset to load cell images and nuclei masks"""
 
-    def __init__(self, root_dir = ".", transform=None, img_transform=None):
+    def __init__(self, root_dir=".", transform=None, img_transform=None):
         self.root_dir = root_dir  # the directory with all the training samples
         self.samples = os.listdir(self.root_dir)  # list the samples
         self.transform = (
@@ -87,42 +84,6 @@ def show_random_dataset_image(dataset):
     axarr[1].set_title("Mask")
     _ = [ax.axis("off") for ax in axarr]  # remove the axes
     print("Image size is %s" % {img[0].shape})
-    plt.show()
-
-
-def show_random_dataset_image_with_prediction(dataset, model, device="cpu"):
-    idx = np.random.randint(0, len(dataset))  # take a random sample
-    img, mask = dataset[idx]  # get the image and the nuclei masks
-    x = img.to(device).unsqueeze(0)
-    y = model(x)[0].detach().cpu().numpy()
-    print("MSE loss:", np.mean((mask[0].numpy() - y[0]) ** 2))
-    f, axarr = plt.subplots(1, 3)  # make two plots on one figure
-    axarr[0].imshow(img[0])  # show the image
-    axarr[0].set_title("Image")
-    axarr[1].imshow(mask[0], interpolation=None)  # show the masks
-    axarr[1].set_title("Mask")
-    axarr[2].imshow(y[0], interpolation=None)  # show the prediction
-    axarr[2].set_title("Prediction")
-    _ = [ax.axis("off") for ax in axarr]  # remove the axes
-    print("Image size is %s" % {img[0].shape})
-    plt.show()
-
-
-def show_random_augmentation_comparison(dataset_a, dataset_b):
-    assert len(dataset_a) == len(dataset_b)
-    idx = np.random.randint(0, len(dataset_a))  # take a random sample
-    img_a, mask_a = dataset_a[idx]  # get the image and the nuclei masks
-    img_b, mask_b = dataset_b[idx]  # get the image and the nuclei masks
-    f, axarr = plt.subplots(2, 2)  # make two plots on one figure
-    axarr[0, 0].imshow(img_a[0])  # show the image
-    axarr[0, 0].set_title("Image")
-    axarr[0, 1].imshow(mask_a[0], interpolation=None)  # show the masks
-    axarr[0, 1].set_title("Mask")
-    axarr[1, 0].imshow(img_b[0])  # show the image
-    axarr[1, 0].set_title("Augmented Image")
-    axarr[1, 1].imshow(mask_b[0], interpolation=None)  # show the prediction
-    axarr[1, 1].set_title("Augmented Mask")
-    _ = [ax.axis("off") for ax in axarr.flatten()]  # remove the axes
     plt.show()
 
 
@@ -309,213 +270,3 @@ def plot_receptive_field(unet, npseed=10, path="nuclei_train_data"):
     plt.vlines(xmin, ymin, ymax, color=color, lw=3)
     plt.vlines(xmax, ymin, ymax, color=color, lw=3)
     plt.show()
-
-
-def compute_affinities(seg: np.ndarray, nhood: list):
-
-    nhood = np.array(nhood)
-
-    shape = seg.shape
-    n_edges = nhood.shape[0]
-    dims = nhood.shape[1]
-    affinity = np.zeros((n_edges,) + shape, dtype=np.int32)
-
-    for e in range(n_edges):
-        affinity[
-            e,
-            max(0, -nhood[e, 0]) : min(shape[0], shape[0] - nhood[e, 0]),
-            max(0, -nhood[e, 1]) : min(shape[1], shape[1] - nhood[e, 1]),
-        ] = (
-            (
-                seg[
-                    max(0, -nhood[e, 0]) : min(shape[0], shape[0] - nhood[e, 0]),
-                    max(0, -nhood[e, 1]) : min(shape[1], shape[1] - nhood[e, 1]),
-                ]
-                == seg[
-                    max(0, nhood[e, 0]) : min(shape[0], shape[0] + nhood[e, 0]),
-                    max(0, nhood[e, 1]) : min(shape[1], shape[1] + nhood[e, 1]),
-                ]
-            )
-            * (
-                seg[
-                    max(0, -nhood[e, 0]) : min(shape[0], shape[0] - nhood[e, 0]),
-                    max(0, -nhood[e, 1]) : min(shape[1], shape[1] - nhood[e, 1]),
-                ]
-                > 0
-            )
-            * (
-                seg[
-                    max(0, nhood[e, 0]) : min(shape[0], shape[0] + nhood[e, 0]),
-                    max(0, nhood[e, 1]) : min(shape[1], shape[1] + nhood[e, 1]),
-                ]
-                > 0
-            )
-        )
-
-    return affinity
-
-
-def evaluate(gt_labels: np.ndarray, pred_labels: np.ndarray, th: float = 0.5):
-    """Function to evaluate a segmentation."""
-
-    pred_labels_rel, _, _ = relabel_sequential(pred_labels)
-    gt_labels_rel, _, _ = relabel_sequential(gt_labels)
-
-    overlay = np.array([pred_labels_rel.flatten(), gt_labels_rel.flatten()])
-
-    # get overlaying cells and the size of the overlap
-    overlay_labels, overlay_labels_counts = np.unique(
-        overlay, return_counts=True, axis=1
-    )
-    overlay_labels = np.transpose(overlay_labels)
-
-    # get gt cell ids and the size of the corresponding cell
-    gt_labels_list, gt_counts = np.unique(gt_labels_rel, return_counts=True)
-    gt_labels_count_dict = {}
-
-    for l, c in zip(gt_labels_list, gt_counts):
-        gt_labels_count_dict[l] = c
-
-    # get pred cell ids
-    pred_labels_list, pred_counts = np.unique(pred_labels_rel, return_counts=True)
-
-    pred_labels_count_dict = {}
-    for l, c in zip(pred_labels_list, pred_counts):
-        pred_labels_count_dict[l] = c
-
-    num_pred_labels = int(np.max(pred_labels_rel))
-    num_gt_labels = int(np.max(gt_labels_rel))
-    num_matches = min(num_gt_labels, num_pred_labels)
-
-    # create iou table
-    iouMat = np.zeros((num_gt_labels + 1, num_pred_labels + 1), dtype=np.float32)
-
-    for (u, v), c in zip(overlay_labels, overlay_labels_counts):
-        iou = c / (gt_labels_count_dict[v] + pred_labels_count_dict[u] - c)
-        iouMat[int(v), int(u)] = iou
-
-    # remove background
-    iouMat = iouMat[1:, 1:]
-
-    # use IoU threshold th
-    if num_matches > 0 and np.max(iouMat) > th:
-        costs = -(iouMat > th).astype(float) - iouMat / (2 * num_matches)
-        gt_ind, pred_ind = linear_sum_assignment(costs)
-        assert num_matches == len(gt_ind) == len(pred_ind)
-        match_ok = iouMat[gt_ind, pred_ind] > th
-        tp = np.count_nonzero(match_ok)
-    else:
-        tp = 0
-    fp = num_pred_labels - tp
-    fn = num_gt_labels - tp
-    precision = tp / max(1, tp + fp)
-    recall = tp / max(1, tp + fn)
-    accuracy = tp / (tp + fp + fn)
-
-    return precision, recall, accuracy
-
-
-def plot_two(img: np.ndarray, sdt: np.ndarray, label: str):
-    """
-    Helper function to plot an image and the auxiliary (intermediate)
-    representation of the target.
-    """
-    fig = plt.figure(constrained_layout=False, figsize=(10, 3))
-    spec = gridspec.GridSpec(ncols=2, nrows=1, figure=fig)
-    ax1 = fig.add_subplot(spec[0, 0])
-    ax1.set_xlabel("Image", fontsize=20)
-    plt.imshow(img, cmap="magma")
-    ax2 = fig.add_subplot(spec[0, 1])
-    ax2.set_xlabel(label, fontsize=20)
-    t = plt.imshow(sdt, cmap="magma")
-    cbar = fig.colorbar(t, fraction=0.046, pad=0.04)
-    tick_locator = ticker.MaxNLocator(nbins=3)
-    cbar.locator = tick_locator
-    cbar.update_ticks()
-    _ = [ax.set_xticks([]) for ax in [ax1, ax2]]
-    _ = [ax.set_yticks([]) for ax in [ax1, ax2]]
-    plt.tight_layout()
-    plt.show()
-
-
-def plot_three(
-    image: np.ndarray, intermediate: np.ndarray, pred: np.ndarray, label: str = "Target"
-):
-    """
-    Helper function to plot an image, the auxiliary (intermediate)
-    representation of the target and the model prediction.
-    """
-    fig = plt.figure(constrained_layout=False, figsize=(10, 3))
-    spec = gridspec.GridSpec(ncols=3, nrows=1, figure=fig)
-    ax1 = fig.add_subplot(spec[0, 0])
-    ax1.set_xlabel("Image", fontsize=20)
-    plt.imshow(image, cmap="magma")
-    ax2 = fig.add_subplot(spec[0, 1])
-    ax2.set_xlabel(label, fontsize=20)
-    plt.imshow(intermediate, cmap="magma")
-    ax3 = fig.add_subplot(spec[0, 2])
-    ax3.set_xlabel("Prediction", fontsize=20)
-    t = plt.imshow(pred, cmap="magma")
-    cbar = fig.colorbar(t, fraction=0.046, pad=0.04)
-    tick_locator = ticker.MaxNLocator(nbins=3)
-    cbar.locator = tick_locator
-    cbar.update_ticks()
-    _ = [ax.set_xticks([]) for ax in [ax1, ax2, ax3]]  # remove the xticks
-    _ = [ax.set_yticks([]) for ax in [ax1, ax2, ax3]]  # remove the yticks
-    plt.tight_layout()
-    plt.show()
-
-
-def plot_four(
-    image: np.ndarray,
-    intermediate: np.ndarray,
-    pred: np.ndarray,
-    seg: np.ndarray,
-    label: str = "Target",
-    cmap: str = "nipy_spectral",
-):
-    """
-    Helper function to plot an image, the auxiliary (intermediate)
-    representation of the target, the model prediction and the predicted segmentation mask.
-    """
-
-    fig = plt.figure(constrained_layout=False, figsize=(10, 3))
-    spec = gridspec.GridSpec(ncols=4, nrows=1, figure=fig)
-    ax1 = fig.add_subplot(spec[0, 0])
-    ax1.imshow(image)  # show the image
-    ax1.set_xlabel("Image", fontsize=20)
-    ax2 = fig.add_subplot(spec[0, 1])
-    ax2.imshow(intermediate)  # show the masks
-    ax2.set_xlabel(label, fontsize=20)
-    ax3 = fig.add_subplot(spec[0, 2])
-    t = ax3.imshow(pred)
-    ax3.set_xlabel("Pred.", fontsize=20)
-    tick_locator = ticker.MaxNLocator(nbins=3)
-    cbar = fig.colorbar(t, fraction=0.046, pad=0.04)
-    cbar.locator = tick_locator
-    cbar.update_ticks()
-    ax4 = fig.add_subplot(spec[0, 3])
-    ax4.imshow(seg, cmap=cmap, interpolation="none")
-    ax4.set_xlabel("Seg.", fontsize=20)
-    _ = [ax.set_xticks([]) for ax in [ax1, ax2, ax3, ax4]]  # remove the xticks
-    _ = [ax.set_yticks([]) for ax in [ax1, ax2, ax3, ax4]]  # remove the yticks
-    plt.tight_layout()
-    plt.show()
-
-
-def test_maximum(find_local_maxima):
-    true_array = np.zeros((28, 28))
-    locs_x = np.random.randint(0, 28, size=(3))
-    locs_y = np.random.randint(0, 28, size=(3))
-    true_array[locs_x, locs_y] = 1
-    test_array = find_local_maxima(true_array, 3)[0] > 1
-
-    fig = plt.figure(constrained_layout=False, figsize=(10, 3))
-    spec = gridspec.GridSpec(ncols=2, nrows=1, figure=fig)
-    ax1 = fig.add_subplot(spec[0, 0])
-    plt.imshow(true_array)
-    plt.title("TRUE MAXIMA")
-    ax1 = fig.add_subplot(spec[0, 1])
-    plt.imshow(test_array)
-    plt.title("FOUND MAXIMA")
-    return
