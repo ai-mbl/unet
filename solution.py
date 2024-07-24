@@ -475,7 +475,7 @@ class OutputConv(torch.nn.Module):
         self,
         in_channels: int,
         out_channels: int,
-        activation: str | None = None,
+        activation: torch.nn.Module | None = None,
     ):
         """
         A module that uses a convolution with kernel size 1 to get the appropriate
@@ -493,11 +493,8 @@ class OutputConv(torch.nn.Module):
 
         # TASK 5.1: Define the convolution submodule
         # YOUR CODE HERE
-
-        if activation is None:
-            self.activation = None
-        else:
-            self.activation = getattr(torch.nn, activation)()
+        
+        self.activation = activation
 
     def forward(self, x):
         # TASK 5.2: Implement the forward function
@@ -511,7 +508,7 @@ class OutputConv(torch.nn.Module):
         self,
         in_channels: int,
         out_channels: int,
-        activation: str | None = None,
+        activation: torch.nn.Module | None = None,
     ):
         """
         A module that uses a convolution with kernel size 1 to get the appropriate
@@ -529,11 +526,7 @@ class OutputConv(torch.nn.Module):
 
         # SOLUTION 5.1: Define the convolution submodule
         self.final_conv = torch.nn.Conv2d(in_channels, out_channels, 1, padding=0)
-
-        if activation is None:
-            self.activation = None
-        else:
-            self.activation = getattr(torch.nn, activation)()
+        self.activation = activation
 
     def forward(self, x):
         # SOLUTION 5.2: Implement the forward function
@@ -547,7 +540,7 @@ class OutputConv(torch.nn.Module):
 unet_tests.TestOutputConv(OutputConv).run()
 
 # %% tags=[]
-out_conv = OutputConv(in_channels=1, out_channels=1, activation="ReLU")
+out_conv = OutputConv(in_channels=1, out_channels=1, activation=torch.nn.ReLU())
 apply_and_show_random_image(out_conv, dataset)
 
 # %% [markdown] tags=[]
@@ -588,7 +581,7 @@ class UNet(torch.nn.Module):
         depth: int,
         in_channels: int,
         out_channels: int = 1,
-        final_activation: str | None = None,
+        final_activation: torch.nn.Module | None = None,
         num_fmaps: int = 64,
         fmap_inc_factor: int = 2,
         downsample_factor: int = 2,
@@ -711,7 +704,7 @@ class UNet(torch.nn.Module):
         depth: int,
         in_channels: int,
         out_channels: int = 1,
-        final_activation: str | None = None,
+        final_activation: torch.nn.Module | None = None,
         num_fmaps: int = 64,
         fmap_inc_factor: int = 2,
         downsample_factor: int = 2,
