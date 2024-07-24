@@ -1,6 +1,6 @@
 black
 gdown
-torch==2.2
+pytorch==2.2
 torchvision
 jupyter 
 imageio
@@ -11,3 +11,5 @@ matplotlib
 pytorch-cuda==11.8
 ipykernel
 jupytext
+numpy<2
+
