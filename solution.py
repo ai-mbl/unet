@@ -1,4 +1,6 @@
-# %% [markdown]
+# %% tags=["remove-cell"]
+# ruff: noqa: F811
+# %% [markdown] tags=[]
 # # Build Your Own U-Net
 #
 # <hr style="height:2px;">
