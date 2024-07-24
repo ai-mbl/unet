@@ -34,8 +34,8 @@ from torchvision import transforms
 from local import (
     NucleiDataset,
     show_random_dataset_image,
-    train,
     apply_and_show_random_image,
+    plot_receptive_field,
 )
 import unet_tests
 
@@ -666,9 +666,7 @@ class UNet(torch.nn.Module):
 
     def forward(self, x):
         # left side
-        # Hint - you will need the outputs of each encoder layer later
-        convolution_outputs = []
-        layer_input = x
+        # Hint - you will need the outputs of each convolutional block in the encoder for the skip connection, so you need to hold on to those output tensors
         for i in range(self.depth - 1):
             # TASK 6.4A: Implement encoder here
             ...
@@ -879,15 +877,11 @@ apply_and_show_random_image(simple_net, dataset)
 # </div>
 
 # %% tags=["task"]
-from local import plot_receptive_field
-
 new_net = ...  # TASK 7: declare your U-Net here
 if isinstance(new_net, UNet):
     plot_receptive_field(new_net)
 
 # %% tags=["solution"]
-from local import plot_receptive_field
-
 # SOLUTION 7: declare your U-Net here
 new_net = UNet(
     depth=2,
