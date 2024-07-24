@@ -22,10 +22,10 @@ jobs:
 
       - name: Build notebooks
         run: |
-          jupytext --to ipynb --update-metadata '{"jupytext":{"cell_metadata_filter":"all"}}' solution.py
+          jupytext --to ipynb --update-metadata '{"jupytext":{"cell_metadata_filter":"all"}}' --update solution.py
 
-          jupyter nbconvert solution.ipynb --TagRemovePreprocessor.enabled=True --TagRemovePreprocessor.remove_cell_tags solution --TagRemovePreprocessor.remove_cell_tags remove-cell --to notebook --output exercise.ipynb
-          jupyter nbconvert solution.ipynb --TagRemovePreprocessor.enabled=True --TagRemovePreprocessor.remove_cell_tags task --TagRemovePreprocessor.remove_cell_tags remove-cell --to notebook --output solution.ipynb
+          jupyter nbconvert solution.ipynb --ClearOutputPreprocessor.enabled=True --TagRemovePreprocessor.enabled=True --TagRemovePreprocessor.remove_cell_tags solution --TagRemovePreprocessor.remove_cell_tags remove-cell --to notebook --output exercise.ipynb
+          jupyter nbconvert solution.ipynb --ClearOutputPreprocessor.enabled=True --TagRemovePreprocessor.enabled=True --TagRemovePreprocessor.remove_cell_tags task --TagRemovePreprocessor.remove_cell_tags remove-cell --to notebook --output solution.ipynb
 
       - uses: EndBug/add-and-commit@v9
         with:
