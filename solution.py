@@ -272,7 +272,6 @@ unet_tests.TestDown(Downsample).run()
 #     <h4>Task 3: Implement a ConvBlock module</h4>
 #     <p>The convolution block (ConvBlock) of a standard U-Net has two 3x3 convolutions, each of which is followed by a ReLU activation. Our implementation will handle other sizes of convolutions as well. The first convolution in the block will handle changing the input number of feature maps/channels into the output, and the second convolution will have the same number of feature maps in and out.</p>
 #     <ol>
-#         <li>Calculate the amount of padding required for same and valid convolutions</li>
 #         <li>Declare the submodules you want to use in the <code>__init__</code> function. Because you will always be calling four submodules in sequence (<a href=https://pytorch.org/docs/stable/generated/torch.nn.Conv2d.html#torch.nn.Conv2d>torch.nn.Conv2d</a>, <a href=https://pytorch.org/docs/stable/generated/torch.nn.ReLU.html#torch.nn.ReLU>torch.nn.ReLU</a>, Conv2d, ReLU), you can use <a href=https://pytorch.org/docs/stable/generated/torch.nn.Sequential.html>torch.nn.Sequential</a> to hold the convolutions and ReLUs.</li>
 #         <li>Call the modules in the forward function. If you used <code>torch.nn.Sequential</code> in step 1, you only need to call the Sequential module, but if not, you can call the Conv2d and ReLU Modules explicitly.</li>
 #     </ol>
@@ -307,16 +306,7 @@ class ConvBlock(torch.nn.Module):
             msg = "Only allowing odd kernel sizes."
             raise ValueError(msg)
 
-        # TASK 3.1: Determine padding size based on method
-        if padding.upper() == "VALID":
-            pad = ...  # YOUR CODE HERE
-        elif padding.upper() == "SAME":
-            pad = ...  # YOUR CODE HERE
-        else:
-            msg = "invalid string value for padding. Choose SAME or VALID."
-            raise ValueError(msg)
-
-        # TASK 3.2: Initialize your modules and define layers in conv pass
+        # TASK 3.1: Initialize your modules and define layers in conv pass
         # YOUR CODE HERE
 
         for _name, layer in self.named_modules():
@@ -324,7 +314,7 @@ class ConvBlock(torch.nn.Module):
                 torch.nn.init.kaiming_normal_(layer.weight, nonlinearity="relu")
 
     def forward(self, x):
-        # TASK 3.3: Apply the modules you defined to the input x
+        # TASK 3.2: Apply the modules you defined to the input x
         ...  # YOUR CODE HERE
 
 
@@ -354,23 +344,14 @@ class ConvBlock(torch.nn.Module):
             msg = "Only allowing odd kernel sizes."
             raise ValueError(msg)
 
-        # SOLUTION 3.1: Determine padding size based on method
-        if padding.upper() == "VALID":
-            pad = 0  # compute this
-        elif padding.upper() == "SAME":
-            pad = kernel_size // 2  # compute this
-        else:
-            msg = "invalid string value for padding. Choose SAME or VALID."
-            raise ValueError(msg)
-
-        # SOLUTION 3.2: Initialize your modules and define layers in conv pass
+        # SOLUTION 3.1: Initialize your modules and define layers in conv pass
         self.conv_pass = torch.nn.Sequential(
             torch.nn.Conv2d(
-                in_channels, out_channels, kernel_size=kernel_size, padding=pad
+                in_channels, out_channels, kernel_size=kernel_size, padding=padding
             ),
             torch.nn.ReLU(),
             torch.nn.Conv2d(
-                out_channels, out_channels, kernel_size=kernel_size, padding=pad
+                out_channels, out_channels, kernel_size=kernel_size, padding=padding
             ),
             torch.nn.ReLU(),
         )
@@ -380,7 +361,7 @@ class ConvBlock(torch.nn.Module):
                 torch.nn.init.kaiming_normal_(layer.weight, nonlinearity="relu")
 
     def forward(self, x):
-        # SOLUTION 3.3: Apply the modules you defined to the input x
+        # SOLUTION 3.2: Apply the modules you defined to the input x
         return self.conv_pass(x)
 
 
