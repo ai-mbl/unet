@@ -1,4 +1,4 @@
-# %% tags=["remove-cell"]
+# %% tags=[]
 # ruff: noqa: F811
 # %% [markdown] tags=[]
 # # Build Your Own U-Net
@@ -889,7 +889,7 @@ apply_and_show_random_image(simple_net, dataset)
 # <hr style="height:2px;">
 
 # %% [markdown] tags=[]
-# ### Receptive Field
+# ## Receptive Field
 #
 # The receptive field of an output value is the set of input values that can change the output value. The size of the receptive field is an important property of network architectures for image processing. Let's consider the receptive field size of the U-Net building blocks.
 
@@ -934,8 +934,6 @@ new_net = UNet(
 if isinstance(new_net, UNet):
     plot_receptive_field(new_net)
 
-# %%
-
 # %% [markdown] tags=[]
 # <div class="alert alert-block alert-success">
 #     <h2>Checkpoint 3</h2>
@@ -947,7 +945,62 @@ if isinstance(new_net, UNet):
 #     <li>Which hyperparameter of the U-Net has most effect on the receptive field?</li>
 #     <li>If two sets of hyperparameters result in the same receptive field size are those networks equally good choices?</li>
 #     <li>What's the relation between the receptive field size and the size of images you feed to your UNet?</li>
+#     <li>Do you see a connection between padding and receptive field size?</li>
 #     <li>For each hyperparameter: Can you think of scenarios in which you would consider changing this parameter? Why? </li>
+# </ol>
+#
+# </div>
+#
+# <hr style="height:2px;">
+
+# %% [markdown]
+# ## Translational equivariance
+#
+# Depending on the task you're trying to solve you may care about translational (shift) invariance or equivariance.
+#
+# Let's first define what these invariance and equivariance mean in mathematical notation.
+#
+# Let $T$ be a transformation and $F$ the function whose properties we're considering.
+#
+# $F$ is invariant under transformation $T$ if: $F(T(x)) = F(x)$. The output of the function remains the same whether the input was transformed or not.
+#
+# $F$ is equivariant under transformation $T$ if: $F(T(x)) = T(F(x))$. Applying the function on the transformed input is the same as applying the transformation on the output of the original input.
+
+# %% [markdown]
+# If math isn't your thing hopefully this picture helps to convey the concept, now specifically for translations.
+
+# %% [markdown]
+# ![image](static/equivariance.png)
+
+# %% [markdown]
+# <div class="alert alert-warning">
+#
+# <h4>Question: Translational invariance and equivariance</h4>
+# For what types of deep learning tasks would you want your network to be translationally invariant and equivariant, respectively? Where does the U-Net fit in?
+# </div>
+
+# %% [markdown]
+# <div class="alert alert-warning">
+#
+# <h4>Question: Translational properties of U-Net building blocks</h4>
+# For each of these building blocks of the U-Net: Is it translationally equivariant or invariant?
+# <ol>
+#     <li>ConvBlock</li>
+#     <li>Downsample</li>
+#     <li>Upsample</li>
+# </ol>
+# </div>
+
+# %% [markdown]
+# <div class="alert alert-block alert-success">
+#     <h2>Checkpoint 4</h2>
+#
+#
+# Questions and points to consider:
+# <ol>
+#     <li>How the output of your network behaves under translations becomes particularly important when your images are too large to be fed into your network as a whole. To solve this the input image is split into tiles and ideally their output should fit together seamlessly. Do you see how seamless stitching is equivalent to translational equivariance under shifts under your tile size and multiples thereof?</li>
+#     <li>How does padding affect the translational equivariance of your network?</li>
+#     <li>Can you think of ways to design an architecture to achieve translation invariance?</li>
 # </ol>
 #
 # </div>
@@ -1116,7 +1169,7 @@ for epoch in range(n_epochs):
 
 # %% [markdown] tags=[]
 # <div class="alert alert-block alert-success">
-#     <h2>Checkpoint 3</h2>
+#     <h2>Checkpoint 5</h2>
 #
 # This is the end of the guided exercise. We will go over all of the code up until this point shortly. While you wait you are encouraged to try different U-Nets, training epochs, etc.
 # </div>
