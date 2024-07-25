@@ -11,9 +11,11 @@
 #
 # In part 1 you will implement the building blocks of the U-Net. That includes the convolutions, downsampling, upsampling and skip connections. We will go in the order of how difficult they are to implement.
 #
-# In part 2 you will combine the modules you've built in part 1 to implement the U-Net module and then see how hyperparameters influence its receptive field size.
+# In part 2 you will combine the modules you've built in part 1 to implement the U-Net module.
 #
-# Finally, in part 3 you will train your first U-Net of the course! This will just be a first flavor though since you will learn much more about that in the next exercise.
+# In part 3 and 4 are light on coding tasks but you will learn about two important concepts: receptive fields and translational equivariance.
+#
+# Finally, in part 5 you will train your first U-Net of the course! This will just be a first flavor though since you will learn much more about that in the next exercise.
 #
 #
 # Written by Larissa Heinrich, Caroline Malin-Mayor, and Morgan Schwartz, with inspiration from William Patton.
@@ -874,14 +876,41 @@ simple_net = UNet(depth=2, in_channels=1)
 # %% tags=[]
 apply_and_show_random_image(simple_net, dataset)
 
+# %% [markdown]
+# <div class="alert alert-block alert-success">
+#     <h2>Checkpoint 2</h2>
+#
+# Congratulations! You have implemented a UNet architecture.
+#
+# Next we'll learn about receptive fields which should demistify how to choose the UNet hyperparameters a little bit.
+#
+
+# %% [markdown]
+# <hr style="height:2px;">
+
 # %% [markdown] tags=[]
 # ### Receptive Field
 #
-# The receptive field of a U-Net is the set of input pixels that contribute to a specific output pixel.
+# The receptive field of an output value is the set of input values that can change the output value. The size of the receptive field is an important property of network architectures for image processing. Let's consider the receptive field size of the U-Net building blocks.
+
+# %% [markdown]
+# <div class="alert alert-warning">
 #
-# The receptive field of a single 3x3 convolution is simply the 3x3 grid of inputs. Each subsequent convolution adds the kernel size - 1 to the receptive field, so two 3x3 convolutions have a 5x5 receptive field for each output pixel.
+# <h4>Question: Receptive Field Size</h4>
+# What are the receptive field sizes of the following operations?
 #
-# Downsampling increases the receptive field as well. After 2x2 max pooling, a 3x3 convolution has a receptive field of 6x6 pre-downsampled pixels. Every operation further increases the receptive field, so the final receptive field of a U-Net output depends on the depth, kernel size, and downsample factor.
+# 1. <code>torch.nn.Conv2d(1, 5, 3)</code>
+# 2. <code>torch.nn.Sequential(torch.nn.Conv2d(1, 5, 3), torch.nn.Conv2d(5,5,3))</code>
+# 3. <code>torch.nn.Sequential(torch.nn.Conv2d(1, 5, 3), torch.nn.Conv2d(5,5,5))</code>
+# 4. <code>Downsample(3)</code>
+# 5. <code>torch.nn.Sequential(ConvBlock(1, 5, 3), Downsample(2), ConvBlock(5,5,3)</code>
+# 6. <code>torch.nn.Upsample(2)</code>
+# 7. <code>torch.nn.Sequential(ConvBlock(1,5,3), Upsample(2), ConvBlock(5,5,3))</code>
+# 8. <code>torch.nn.Sequential(ConvBlock(1,5,3), Downsample(3), ConvBlock(5,5,3), Upsample(3), ConvBlock(5,5,3))</code>
+# 9. <code>UNet(depth=2, in_channels=1, downsample_factor=3, kernel_size=3)</code>
+#
+#
+# </div>
 
 # %% [markdown] tags=[]
 # <div class="alert alert-block alert-info">
@@ -905,15 +934,19 @@ new_net = UNet(
 if isinstance(new_net, UNet):
     plot_receptive_field(new_net)
 
+# %%
+
 # %% [markdown] tags=[]
 # <div class="alert alert-block alert-success">
-#     <h2>Checkpoint 2</h2>
+#     <h2>Checkpoint 3</h2>
 #
-# We are about ready to start training! But before we do, we will stop and discuss your implementation.
+# Looking at the receptive field of your network is one of the most important aspects to consider when you choose the hyperparameters for your network.
 #
 # Questions to consider:
 # <ol>
-#     <li>Which feature of the U-Net has most effect on the receptive field?</li>
+#     <li>Which hyperparameter of the U-Net has most effect on the receptive field?</li>
+#     <li>If two sets of hyperparameters result in the same receptive field size are those networks equally good choices?</li>
+#     <li>What's the relation between the receptive field size and the size of images you feed to your UNet?</li>
 #     <li>For each hyperparameter: Can you think of scenarios in which you would consider changing this parameter? Why? </li>
 # </ol>
 #
