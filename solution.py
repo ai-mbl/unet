@@ -75,7 +75,7 @@ show_random_dataset_image(dataset)
 # ### Component 1: Upsampling
 
 # %% [markdown] tags=[]
-# We will start with the Upsample module that we will use in our U-Net. The right side of the U-Net contains upsampling between the levels. There are many ways to upsample: in the original U-Net, they use a transposed convolution, but this has since fallen a bit out of fashion so we will use the PyTorch Upsample Module [torch.nn.Upsample](https://pytorch.org/docs/stable/generated/torch.nn.Upsample.html#torch.nn.Upsample) instead.
+# We will start with the Upsample module that we will use in our U-Net. The right side of the U-Net contains upsampling between the levels. There are many ways to upsample: in the original U-Net, they used a transposed convolution, but this has since fallen a bit out of fashion so we will use the PyTorch Upsample Module [torch.nn.Upsample](https://pytorch.org/docs/stable/generated/torch.nn.Upsample.html#torch.nn.Upsample) instead.
 
 
 # %% [markdown] tags=[]
@@ -196,7 +196,10 @@ class Downsample(torch.nn.Module):
 
     def forward(self, x):
         if not self.check_valid(tuple(x.size()[-2:])):
-            raise RuntimeError("Can not downsample shape %s with factor %s" % (x.size(), self.downsample_factor))
+            raise RuntimeError(
+                "Can not downsample shape %s with factor %s"
+                % (x.size(), self.downsample_factor)
+            )
 
         return self.down(x)
 
@@ -225,7 +228,10 @@ class Downsample(torch.nn.Module):
 
     def forward(self, x):
         if not self.check_valid(tuple(x.size()[-2:])):
-            raise RuntimeError("Can not downsample shape %s with factor %s" % (x.size(), self.downsample_factor))
+            raise RuntimeError(
+                "Can not downsample shape %s with factor %s"
+                % (x.size(), self.downsample_factor)
+            )
 
         return self.down(x)
 
@@ -347,9 +353,13 @@ class ConvBlock(torch.nn.Module):
 
         # SOLUTION 3.1: Initialize your modules and define layers in conv pass
         self.conv_pass = torch.nn.Sequential(
-            torch.nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size, padding=padding),
+            torch.nn.Conv2d(
+                in_channels, out_channels, kernel_size=kernel_size, padding=padding
+            ),
             torch.nn.ReLU(),
-            torch.nn.Conv2d(out_channels, out_channels, kernel_size=kernel_size, padding=padding),
+            torch.nn.Conv2d(
+                out_channels, out_channels, kernel_size=kernel_size, padding=padding
+            ),
             torch.nn.ReLU(),
         )
 
@@ -552,7 +562,7 @@ apply_and_show_random_image(out_conv, dataset)
 # %% [markdown] tags=[]
 # ## Putting the U-Net together
 #
-# Now we will make a U-Net class that combines all of these components as shown in the image. This image shows a U-Net of depth 5 with specific input channels, feature maps, upsampling, and final activation. Ours will be configurable with regards to depth and other features.
+# Now we will make a U-Net class that combines all of these components as shown in the image. This image shows a U-Net of depth 4 with specific input channels, feature maps, upsampling, and final activation. Ours will be configurable with regards to depth and other features.
 #
 # <img src="static/unet.png" alt="UNet" style="width: 1500px;"/>
 
@@ -757,7 +767,9 @@ class UNet(torch.nn.Module):
         # SOLUTION 6.2A: Initialize list here
         for level in range(self.depth):
             fmaps_in, fmaps_out = self.compute_fmaps_encoder(level)
-            self.left_convs.append(ConvBlock(fmaps_in, fmaps_out, self.kernel_size, self.padding))
+            self.left_convs.append(
+                ConvBlock(fmaps_in, fmaps_out, self.kernel_size, self.padding)
+            )
 
         # right convolutional passes
         self.right_convs = torch.nn.ModuleList()
@@ -780,7 +792,9 @@ class UNet(torch.nn.Module):
             mode=self.upsample_mode,
         )
         self.crop_and_concat = CropAndConcat()
-        self.final_conv = OutputConv(self.compute_fmaps_decoder(0)[1], self.out_channels, self.final_activation)
+        self.final_conv = OutputConv(
+            self.compute_fmaps_decoder(0)[1], self.out_channels, self.final_activation
+        )
 
     def compute_fmaps_encoder(self, level: int) -> tuple[int, int]:
         """Compute the number of input and output feature maps for
@@ -819,7 +833,9 @@ class UNet(torch.nn.Module):
         """
         # SOLUTION 6.1B: Implement this function
         fmaps_out = self.num_fmaps * self.fmap_inc_factor ** (level)
-        concat_fmaps = self.compute_fmaps_encoder(level)[1]  # The channels that come from the skip connection
+        concat_fmaps = self.compute_fmaps_encoder(level)[
+            1
+        ]  # The channels that come from the skip connection
         fmaps_in = concat_fmaps + self.num_fmaps * self.fmap_inc_factor ** (level + 1)
 
         return fmaps_in, fmaps_out
@@ -1074,11 +1090,17 @@ def train(
         # log to tensorboard
         if tb_logger is not None:
             step = epoch * len(loader) + batch_id
-            tb_logger.add_scalar(tag="train_loss", scalar_value=loss.item(), global_step=step)
+            tb_logger.add_scalar(
+                tag="train_loss", scalar_value=loss.item(), global_step=step
+            )
             # check if we log images in this iteration
             if step % log_image_interval == 0:
-                tb_logger.add_images(tag="input", img_tensor=x.to("cpu"), global_step=step)
-                tb_logger.add_images(tag="target", img_tensor=y.to("cpu"), global_step=step)
+                tb_logger.add_images(
+                    tag="input", img_tensor=x.to("cpu"), global_step=step
+                )
+                tb_logger.add_images(
+                    tag="target", img_tensor=y.to("cpu"), global_step=step
+                )
                 tb_logger.add_images(
                     tag="prediction",
                     img_tensor=prediction.to("cpu").detach(),
@@ -1114,7 +1136,9 @@ model_name = "my_fav_unet"  # This name will be used in the tensorboard logs
 logger = SummaryWriter(f"unet_runs/{model_name}")
 
 # %% tags=["solution"]
-model = UNet(depth=4, in_channels=1)  # SOLUTION 8.1: Declare your U-Net here and name it below
+model = UNet(
+    depth=4, in_channels=1
+)  # SOLUTION 8.1: Declare your U-Net here and name it below
 model_name = "my_fav_unet"  # This name will be used in the tensorboard logs
 logger = SummaryWriter(f"unet_runs/{model_name}")
 
