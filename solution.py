@@ -68,7 +68,8 @@ show_random_dataset_image(dataset)
 
 # %% [markdown] tags=[]
 # The [U-Net](https://lmb.informatik.uni-freiburg.de/people/ronneber/u-net/) architecture has proven to outperform the other architectures in segmenting biological and medical images. It is also commonly used for other tasks that require the output to be the same resolution as the input, such as style transfer and denoising. Below is an overview figure of the U-Net architecture from the original [paper](https://arxiv.org/pdf/1505.04597.pdf). We will go through each of the components first (hint: all of them can be found in the list of PyTorch modules [here](https://pytorch.org/docs/stable/nn.html#convolution-layers)), and then fit them all together to make our very own U-Net.
-# ![image](static/UNet_figure.png)
+#
+# <img src="static/unet.png" alt="UNet" style="width: 1500px;"/>
 
 # %% [markdown] tags=[]
 # ### Component 1: Upsampling
@@ -552,7 +553,8 @@ apply_and_show_random_image(out_conv, dataset)
 # ## Putting the U-Net together
 #
 # Now we will make a U-Net class that combines all of these components as shown in the image. This image shows a U-Net of depth 5 with specific input channels, feature maps, upsampling, and final activation. Ours will be configurable with regards to depth and other features.
-# ![image](static/UNet_figure.png)
+#
+# <img src="static/unet.png" alt="UNet" style="width: 1500px;"/>
 
 
 # %% [markdown] tags=[]
@@ -956,10 +958,7 @@ if isinstance(new_net, UNet):
 # If math isn't your thing hopefully this picture helps to convey the concept, now specifically for translations.
 
 # %% [markdown]
-# ![image](static/equivariance.svg)
-
-# %% [markdown]
-# <img src="static/equivariance.svg" alt="Invariance and Equivariance" style="width: 200px;"/>
+# <img src="static/equivariance.svg" alt="Invariance and Equivariance" style="width: 1500px;"/>
 
 # %% [markdown]
 # <div class="alert alert-warning">
