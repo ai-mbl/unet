@@ -30,6 +30,7 @@ class TestDown:
         print("TESTS PASSED")
 
 
+
 class TestConvBlock:
     def __init__(self, conv_module):
         self.conv_module = conv_module
@@ -147,6 +148,23 @@ class TestUNet:
             (2, 7, 112, 112)
         ), msg
 
+    def test_shape_valid_3d(self) -> None:
+        unetvalid = self.unetmodule(
+            depth=3,
+            in_channels=2,
+            out_channels=1,
+            num_fmaps=5,
+            fmap_inc_factor=5,
+            downsample_factor=3,
+            kernel_size=5,
+            padding="valid",
+            ndim=3
+        )
+        msg = "The output shape of your UNet is incorrect for valid padding in 3D."
+        assert unetvalid(torch.ones((2,2,140,140,140))).shape == torch.Size(
+            (2, 1, 4, 4, 4)
+        ), msg
+    
     def test_shape_same(self) -> None:
         unetsame = self.unetmodule(
             depth=4,
@@ -162,9 +180,28 @@ class TestUNet:
         assert unetsame(torch.ones((2, 2, 243, 243))).shape == torch.Size(
             (2, 7, 243, 243)
         ), msg
-
+    def test_shape_same_3d(self) -> None:
+        unetsame = self.unetmodule(
+            depth=3,
+            in_channels=2,
+            out_channels=1,
+            num_fmaps=5,
+            fmap_inc_factor=5,
+            downsample_factor=3,
+            kernel_size=5,
+            padding="same",
+            ndim=3
+        )
+        msg = "The output shape of your Unet is incorrect for same padding in 3D."
+        assert unetsame(torch.ones((2,2,27,27,27))).shape == torch.Size((2,1,27,27,27)), msg
     def run(self):
         self.test_fmaps()
         self.test_shape_valid()
         self.test_shape_same()
+        print("TESTS PASSED")
+
+    def run3d(self):
+        self.test_fmaps()
+        self.test_shape_valid_3d()
+        self.test_shape_same_3d()
         print("TESTS PASSED")
