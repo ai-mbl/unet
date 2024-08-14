@@ -333,7 +333,7 @@ class ConvBlock(torch.nn.Module):
         in_channels: int,
         out_channels: int,
         kernel_size: int,
-        padding: str = "same"
+        padding: str = "same",
     ):
         """A convolution block for a U-Net. Contains two convolutions, each followed by a ReLU.
 
@@ -1179,12 +1179,12 @@ for epoch in range(n_epochs):
 #
 # Congratulations! You trained your first UNet that you implemented all by yourself!
 #
-# We will keep using this U-Net throughout the rest of the exercises. Whenever you see an import like `import dlmbl-unet` or 
+# We will keep using this U-Net throughout the rest of the exercises. Whenever you see an import like `import dlmbl-unet` or
 # `from dlmbl-unet import UNet` it will be importing from [this repository](https://github.com/dlmbl/dlmbl-unet) which contains the solution to this notebook as a package (including the bonus exercises so don't peak just yet if you wanna solve the bonus too).
 # </div>
 
 # %% [markdown] tags=[]
-# ## Bonus 1: 3D UNet 
+# ## Bonus 1: 3D UNet
 # The UNet you implemented so far only works for 2D images, but in microscopy we often have 3D data that also needs to be processed as such, i.e. for some tasks it is important that the network's receptive field is 3D. So in this bonus exercise we will change our implementation to make the number of dimensions configurable.
 #
 
@@ -1193,6 +1193,7 @@ for epoch in range(n_epochs):
 #     <h3>Task 10: Make U-Net building blocks configurable for 2D and 3D data! </h3>
 #     To make the same class usable for 2D and 3D data we will add an argument `ndim` to each building block.
 # </div>
+
 
 # %% tags=["task"]
 class Downsample(torch.nn.Module):
@@ -1208,7 +1209,6 @@ class Downsample(torch.nn.Module):
         # TASK 10A: Initialize the maxpool module
         # Define what the downop should be based on `ndim`.
         self.down = ...  # YOUR CODE HERE
-        
 
     def check_valid(self, image_size: tuple[int, ...]) -> bool:
         """Check if the downsample factor evenly divides each image dimension.
@@ -1250,7 +1250,7 @@ class ConvBlock(torch.nn.Module):
                 NxN square kernel.
             padding (str): The type of convolution padding to use. Either "same" or "valid".
                 Defaults to "same".
-            ndim (int): Number of dimensions for the convolution operation. Use 2 for 2D 
+            ndim (int): Number of dimensions for the convolution operation. Use 2 for 2D
                 convolutions and 3 for 3D convolutions. Defaults to 2.
         """
         super().__init__()
@@ -1261,7 +1261,7 @@ class ConvBlock(torch.nn.Module):
             msg = "Only allowing odd kernel sizes."
             raise ValueError(msg)
 
-        # TASK 10C: Initialize your modules and define layers. 
+        # TASK 10C: Initialize your modules and define layers.
         # Use the convolution module matching `ndim`.
         # YOUR CODE HERE
 
@@ -1298,10 +1298,10 @@ class OutputConv(torch.nn.Module):
                 convolutions and 3 for 3D convolutions. Defaults to 2.
         """
         super().__init__()
-        if ndim not in (2,3):
+        if ndim not in (2, 3):
             msg = f"Invalid number of dimensions: {ndim=}. Options are 2 or 3."
             raise ValueError(msg)
-            
+
         # TASK 10E: Define the convolution submodule.
         # Use the convolution module matching `ndim`.
         # YOUR CODE HERE
@@ -1328,12 +1328,12 @@ class UNet(torch.nn.Module):
         kernel_size: int = 3,
         padding: str = "same",
         upsample_mode: str = "nearest",
-        ndim: int =2,
+        ndim: int = 2,
     ):
         """A U-Net for 2D or 3D input that expects tensors shaped like:
-            ``(batch, channels, height, width)`` or ``(batch, channels, depth, height, width)``, 
+            ``(batch, channels, height, width)`` or ``(batch, channels, depth, height, width)``,
             respectively.
-        
+
         Args:
             depth:
                 The number of levels in the U-Net. 2 is the smallest that really
@@ -1385,17 +1385,17 @@ class UNet(torch.nn.Module):
         # left convolutional passes
         self.left_convs = torch.nn.ModuleList()
         # TASK 10G: Initialize list here
-        # After you implemented the conv pass you can copy this from TASK 6.2A, 
+        # After you implemented the conv pass you can copy this from TASK 6.2A,
         # but make sure to pass the ndim argument
 
         # right convolutional passes
         self.right_convs = torch.nn.ModuleList()
         # TASK 10H: Initialize list here
-        # After you implemented the conv pass you can copy this from TASK 6.2B, 
+        # After you implemented the conv pass you can copy this from TASK 6.2B,
         # but make sure to pass the ndim argument
-    
+
         # TASK 10I: Initialize other modules here
-        # Same here, copy over from TASK 6.3, but make sure to add the ndim argument 
+        # Same here, copy over from TASK 6.3, but make sure to add the ndim argument
         # as needed.
 
     def compute_fmaps_encoder(self, level: int) -> tuple[int, int]:
@@ -1467,12 +1467,8 @@ class Downsample(torch.nn.Module):
         self.downsample_factor = downsample_factor
         # SOLUTION 10A: Initialize the maxpool module
         # Define what the downop should be based on `ndim`.
-        downops = {
-            2: torch.nn.MaxPool2d,
-            3: torch.nn.MaxPool3d
-        }
+        downops = {2: torch.nn.MaxPool2d, 3: torch.nn.MaxPool3d}
         self.down = downops[ndim](downsample_factor)
-        
 
     def check_valid(self, image_size: tuple[int, ...]) -> bool:
         """Check if the downsample factor evenly divides each image dimension.
@@ -1518,7 +1514,7 @@ class ConvBlock(torch.nn.Module):
                 NxN square kernel.
             padding (str): The type of convolution padding to use. Either "same" or "valid".
                 Defaults to "same".
-            ndim (int): Number of dimensions for the convolution operation. Use 2 for 2D 
+            ndim (int): Number of dimensions for the convolution operation. Use 2 for 2D
                 convolutions and 3 for 3D convolutions. Defaults to 2.
         """
         super().__init__()
@@ -1529,13 +1525,10 @@ class ConvBlock(torch.nn.Module):
             msg = "Only allowing odd kernel sizes."
             raise ValueError(msg)
 
-        # SOLUTION 10C: Initialize your modules and define layers. 
+        # SOLUTION 10C: Initialize your modules and define layers.
         # Use the convolution module matching `ndim`.
         # YOUR CODE HERE
-        convops = {
-            2: torch.nn.Conv2d, 
-            3: torch.nn.Conv3d
-        }
+        convops = {2: torch.nn.Conv2d, 3: torch.nn.Conv3d}
         self.conv_pass = torch.nn.Sequential(
             convops[ndim](
                 in_channels, out_channels, kernel_size=kernel_size, padding=padding
@@ -1580,21 +1573,15 @@ class OutputConv(torch.nn.Module):
                 convolutions and 3 for 3D convolutions. Defaults to 2.
         """
         super().__init__()
-        if ndim not in (2,3):
+        if ndim not in (2, 3):
             msg = f"Invalid number of dimensions: {ndim=}. Options are 2 or 3."
             raise ValueError(msg)
         # SOLUTION 10E: Define the convolution submodule.
         # Use the convolution module matching `ndim`.
-        convops = {
-            2: torch.nn.Conv2d,
-            3: torch.nn.Conv3d
-        }
-        self.final_conv = convops[ndim](
-            in_channels, out_channels, 1, padding=0
-        )
-        
+        convops = {2: torch.nn.Conv2d, 3: torch.nn.Conv3d}
+        self.final_conv = convops[ndim](in_channels, out_channels, 1, padding=0)
+
         self.activation = activation
-            
 
     def forward(self, x):
         # SOLUTION 10F: Implement the forward function
@@ -1618,12 +1605,12 @@ class UNet(torch.nn.Module):
         kernel_size: int = 3,
         padding: str = "same",
         upsample_mode: str = "nearest",
-        ndim: int =2,
+        ndim: int = 2,
     ):
         """A U-Net for 2D or 3D input that expects tensors shaped like:
-            ``(batch, channels, height, width)`` or ``(batch, channels, depth, height, width)``, 
+            ``(batch, channels, height, width)`` or ``(batch, channels, depth, height, width)``,
             respectively.
-        
+
         Args:
             depth:
                 The number of levels in the U-Net. 2 is the smallest that really
@@ -1675,32 +1662,30 @@ class UNet(torch.nn.Module):
         # left convolutional passes
         self.left_convs = torch.nn.ModuleList()
         # SOLUTION 10G: Initialize list here
-        # After you implemented the conv pass you can copy this from TASK 6.2A, 
+        # After you implemented the conv pass you can copy this from TASK 6.2A,
         # but make sure to pass the ndim argument
         for level in range(self.depth):
             fmaps_in, fmaps_out = self.compute_fmaps_encoder(level)
             self.left_convs.append(
-                ConvBlock(fmaps_in, fmaps_out, self.kernel_size, self.padding, ndim=ndim)
+                ConvBlock(
+                    fmaps_in, fmaps_out, self.kernel_size, self.padding, ndim=ndim
+                )
             )
         # right convolutional passes
         self.right_convs = torch.nn.ModuleList()
         # SOLUTION 10H: Initialize list here
-        # After you implemented the conv pass you can copy this from TASK 6.2B, 
+        # After you implemented the conv pass you can copy this from TASK 6.2B,
         # but make sure to pass the ndim argument
         for level in range(self.depth - 1):
             fmaps_in, fmaps_out = self.compute_fmaps_decoder(level)
             self.right_convs.append(
                 ConvBlock(
-                    fmaps_in,
-                    fmaps_out,
-                    self.kernel_size,
-                    self.padding,
-                    ndim=ndim
+                    fmaps_in, fmaps_out, self.kernel_size, self.padding, ndim=ndim
                 )
             )
-    
+
         # SOLUTION 10I: Initialize other modules here
-        # Same here, copy over from TASK 6.3, but make sure to add the ndim argument 
+        # Same here, copy over from TASK 6.3, but make sure to add the ndim argument
         # as needed.
         self.downsample = Downsample(self.downsample_factor, ndim=ndim)
         self.upsample = torch.nn.Upsample(
@@ -1709,7 +1694,10 @@ class UNet(torch.nn.Module):
         )
         self.crop_and_concat = CropAndConcat()
         self.final_conv = OutputConv(
-            self.compute_fmaps_decoder(0)[1], self.out_channels, self.final_activation, ndim=ndim
+            self.compute_fmaps_decoder(0)[1],
+            self.out_channels,
+            self.final_activation,
+            ndim=ndim,
         )
 
     def compute_fmaps_encoder(self, level: int) -> tuple[int, int]:
@@ -1785,14 +1773,14 @@ class UNet(torch.nn.Module):
             concat = self.crop_and_concat(convolution_outputs[i], upsampled)
             conv_output = self.right_convs[i](concat)
             layer_input = conv_output
-        
+
         # SOLUTION 10O: Apply the final convolution and return the output
         # Copy from TASK 6.4D
         return self.final_conv(layer_input)
 
 
 # %% [markdown] tags=[]
-# Run the 3d test for your implementation of the UNet. 
+# Run the 3d test for your implementation of the UNet.
 
 # %% tags=[]
 unet_tests.TestUNet(UNet).run3d()
