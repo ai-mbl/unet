@@ -11,8 +11,7 @@ if [[ "$CONDA_DEFAULT_ENV" == "002-unet-exercise" ]]; then
 else
     echo "Failed to activate environment for package installs. Dependencies not installed!"
 fi
-gdown -O kaggle_data.zip 1L344AoTTx-mu9MyNt-2iZ5A3ww3tC_Zp
-unzip -u -qq kaggle_data.zip && rm kaggle_data.zip
+aws s3 cp s3://dl-at-mbl-data/2024/02_unet . --recursive --no-sign-request
 conda deactivate
 # Return to base environment
 conda activate base
