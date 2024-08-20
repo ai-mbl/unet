@@ -400,9 +400,9 @@ apply_and_show_random_image(conv, dataset)
 # ### Component 4: Skip Connections and Concatenation
 
 # %% [markdown] tags=[]
-# The skip connections between the left and right side of the U-Net are central to successfully obtaining high-resolution output. At each layer, the output of the left conv block is concatenated to the output of the upsample block on the right side from the last layer below. Since upsampling, especially with the "nearest" algorithm, does not actually add high resolution information, the concatenation of the right side conv block output is crucial to generate high resolution segmentations.
+# The skip connections between the left and right side of the U-Net are central to successfully obtaining high-resolution output. At each layer, the output of the left conv block is concatenated to the output of the upsample block on the right side from the last layer below. Since upsampling, especially with the "nearest" algorithm, does not actually add high resolution information, the concatenation of the left side conv block output is crucial to generate high resolution segmentations.
 #
-# If the convolutions in the U-Net are valid, the right side will be smaller than the left side, so the right side output must be cropped before concatenation. We provide a helper function to do this cropping.
+# If the convolutions in the U-Net are valid, the right side will be smaller than the left side, so the left side output must be cropped before concatenation. We provide a helper function to do this cropping.
 
 
 # %% [markdown] tags=[]
@@ -1638,8 +1638,8 @@ class UNet(torch.nn.Module):
             padding (str, optional):
                 How to pad convolutions. Either 'same' or 'valid'. Defaults to "same."
             upsample_mode (str, optional):
-                The upsampling mode to pass to torch.nn.Upsample. Usually "nearest"
-                or "bilinear." Defaults to "nearest."
+                The upsampling mode to pass to torch.nn.Upsample. Usually "nearest",
+                "bilinear" (2D) or "trilinear" (3D). Defaults to "nearest".
             ndim (int, optional): Number of dimensions for the U-Net. Use 2 for 2D U-Net and
                 3 for 3D U-Net. Defaults to 2.
         """
@@ -1647,6 +1647,12 @@ class UNet(torch.nn.Module):
         super().__init__()
         if ndim not in (2, 3):
             msg = f"Invalid number of dimensions: {ndim=}. Options are 2 or 3."
+            raise ValueError(msg)
+        if ndim == 2 and upsample_mode == "trilinear":
+            msg = "Trilinear interpolation is not valid for a 2D UNet. Please choose `nearest` or `bilinear` instead"
+            raise ValueError(msg)
+        if ndim == 3 and upsample_mode == "bilinear":
+            msg = "Bilinear interpolation is not valid for a 3D UNet. Please choose `nearest` or `trilinear` instead"
             raise ValueError(msg)
         self.depth = depth
         self.in_channels = in_channels
