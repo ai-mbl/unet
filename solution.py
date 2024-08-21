@@ -27,7 +27,6 @@
 
 # %% tags=[]
 # %matplotlib inline
-# %load_ext tensorboard
 import numpy as np
 import torch
 import subprocess
