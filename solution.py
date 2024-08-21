@@ -30,6 +30,7 @@
 # %load_ext tensorboard
 import numpy as np
 import torch
+import subprocess
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from torchvision import transforms
@@ -1115,13 +1116,52 @@ def train(
 
 
 # %% [markdown] tags=[]
-# Now we start our Tensorboard server and show it inside the notebook. We haven't logged anything yet so you'll see "No dashboards are active for the current data set." After you start training, you may need to press the refresh button in the top right to see the logs. When looking at the loss, we recommend smoothing (slider in the settings toolbar) because the raw numbers are very noisy
-#
-# If you don't see _anything_, try running the cell again.
+"""
+The next two cells start tensorboard.
+<div class="alert alert-warning">
+If you are using VSCode and a remote server, you will need to forward the port to view the tensorboard. <br>
+Take note of the port number was assigned in the previous cell.(i.e <code> http://localhost:{port_number_assigned}</code>) <br>
+
+Locate the your VSCode terminal and select the <code>Ports</code> tab <br>
+<ul>
+<li>Add a new port with the <code>port_number_assigned</code>
+</ul>
+Click on the link to view the tensorboard and it should open in your browser.
+</div>
+<div class="alert alert-warning">
+If you launched jupyter lab from ssh terminal, add <code>--host &lt;your-server-name&gt;</code> to the tensorboard command below. <code>&lt;your-server-name&gt;</code> is the address of your compute node that ends in amazonaws.com.
+
+</div>
+
+
+"""
+
 
 # %% tags=[]
-# start a tensorboard writer
-# %tensorboard --logdir unet_runs
+# Function to find an available port
+def find_free_port():
+    import socket
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(("", 0))
+        return s.getsockname()[1]
+
+
+# Launch TensorBoard on the browser
+def launch_tensorboard(log_dir):
+    port = find_free_port()
+    tensorboard_cmd = f"tensorboard --logdir={log_dir} --port={port}"
+    process = subprocess.Popen(tensorboard_cmd, shell=True)
+    print(
+        f"TensorBoard started at http://localhost:{port}. \n"
+        "If you are using VSCode remote session, forward the port using the PORTS tab next to TERMINAL."
+    )
+    return process
+
+
+# %% tags=[]
+# Launch tensorboard and click on the link to view the logs.
+tensorboard_process = launch_tensorboard("unet_runs")
 
 # %% [markdown] tags=[]
 # <div class="alert alert-block alert-info">
