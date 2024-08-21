@@ -1098,14 +1098,19 @@ def train(
             )
             # check if we log images in this iteration
             if step % log_image_interval == 0:
-                combined_image = torch.cat([x.to("cpu"), y.to("cpu"), prediction.to("cpu").detach()], dim=3)
+                combined_image = torch.cat(
+                    [x.to("cpu"), y.to("cpu"), prediction.to("cpu").detach()], dim=3
+                )
                 tb_logger.add_images(
-                    tag="input_target_prediction", img_tensor=combined_image, global_step=step
+                    tag="input_target_prediction",
+                    img_tensor=combined_image,
+                    global_step=step,
                 )
 
         if early_stop and batch_id > 5:
             print("Stopping test early!")
             break
+
 
 # %% [markdown] tags=[]
 """
@@ -1126,6 +1131,7 @@ If you launched jupyter lab from ssh terminal, add <code>--host &lt;your-server-
 </div>
 
 """
+
 
 # %% tags=[]
 # Function to find an available port
