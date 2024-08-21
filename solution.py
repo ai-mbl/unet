@@ -376,6 +376,7 @@ class ConvBlock(torch.nn.Module):
 
 # %% [markdown] tags=[]
 # #### Test and Visualize Output of ConvBlock
+# Try rerunning the visualization a few times. What do you observe? Can you explain it?
 
 
 # %% tags=[]
@@ -1097,22 +1098,14 @@ def train(
             )
             # check if we log images in this iteration
             if step % log_image_interval == 0:
+                combined_image = torch.cat([x.to("cpu"), y.to("cpu"), prediction.to("cpu").detach()], dim=3)
                 tb_logger.add_images(
-                    tag="input", img_tensor=x.to("cpu"), global_step=step
-                )
-                tb_logger.add_images(
-                    tag="target", img_tensor=y.to("cpu"), global_step=step
-                )
-                tb_logger.add_images(
-                    tag="prediction",
-                    img_tensor=prediction.to("cpu").detach(),
-                    global_step=step,
+                    tag="input_target_prediction", img_tensor=combined_image, global_step=step
                 )
 
         if early_stop and batch_id > 5:
             print("Stopping test early!")
             break
-
 
 # %% [markdown] tags=[]
 """
@@ -1132,9 +1125,7 @@ If you launched jupyter lab from ssh terminal, add <code>--host &lt;your-server-
 
 </div>
 
-
 """
-
 
 # %% tags=[]
 # Function to find an available port
