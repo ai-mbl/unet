@@ -40,6 +40,7 @@ from local import (
     apply_and_show_random_image,
     plot_receptive_field,
     show_random_dataset_image,
+    pad_to_size
 )
 
 # %% tags=[]
@@ -1099,7 +1100,7 @@ def train(
             # check if we log images in this iteration
             if step % log_image_interval == 0:
                 combined_image = torch.cat(
-                    [x.to("cpu"), y.to("cpu"), prediction.to("cpu").detach()], dim=3
+                    [x.to("cpu"), pad_to_size(y.to("cpu"), x.size()), pad_to_size(prediction.to("cpu").detach(), x.size())], dim=3
                 )
                 tb_logger.add_images(
                     tag="input_target_prediction",
