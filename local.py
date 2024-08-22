@@ -15,6 +15,8 @@ def show_one_image(image_path):
     image = imageio.imread(image_path)
     plt.imshow(image)
 
+def unnormalize(tensor):
+    return (tensor+1)/2.
 
 class NucleiDataset(Dataset):
     """A PyTorch dataset to load cell images and nuclei masks"""
