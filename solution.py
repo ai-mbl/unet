@@ -41,7 +41,7 @@ from local import (
     plot_receptive_field,
     show_random_dataset_image,
     pad_to_size,
-    unnormalize
+    unnormalize,
 )
 
 # %% tags=[]
@@ -1113,9 +1113,10 @@ def train(
                     global_step=step,
                 )
                 combined_image = torch.cat(
-                    [x, pad_to_size(y, x.size()), pad_to_size(prediction, x.size())], dim=3
+                    [x, pad_to_size(y, x.size()), pad_to_size(prediction, x.size())],
+                    dim=3,
                 )
-                
+
                 tb_logger.add_images(
                     tag="input_target_prediction",
                     img_tensor=combined_image,
