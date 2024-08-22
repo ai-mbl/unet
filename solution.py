@@ -979,7 +979,7 @@ if isinstance(new_net, UNet):
 # If math isn't your thing hopefully this picture helps to convey the concept, now specifically for translations.
 
 # %% [markdown] tags=[]
-# <img src="static/equivariance.svg" alt="Invariance and Equivariance" style="width: 1500px;"/>
+# <img src="static/equivariance.png" alt="Invariance and Equivariance" style="width: 1500px;"/>
 
 # %% [markdown] tags=[]
 # <div class="alert alert-warning">
