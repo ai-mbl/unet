@@ -4,6 +4,7 @@ import imageio
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+import math
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from PIL import Image
 from torch.utils.data import Dataset
@@ -14,6 +15,8 @@ def show_one_image(image_path):
     image = imageio.imread(image_path)
     plt.imshow(image)
 
+def unnormalize(tensor):
+    return (tensor+1)/2.
 
 class NucleiDataset(Dataset):
     """A PyTorch dataset to load cell images and nuclei masks"""
@@ -86,9 +89,19 @@ def show_random_dataset_image(dataset):
     print("Image size is %s" % {img[0].shape})
     plt.show()
 
+def pad_to_size(small_tensor, target_size):
+    if small_tensor.size() > target_size:
+        msg = f"Can't pad tensor of size {small_tensor.size()} to tensor of size {target_size}."
+        raise ValueError(msg)
+    if small_tensor.size() == target_size:
+        return small_tensor
+    pad_twoside = []
+    for small_size, large_size in zip(small_tensor.shape, target_size):
+        pad_twoside.append(math.floor((large_size - small_size)/2))
+        pad_twoside.append(math.ceil((large_size-small_size)/2))
+    return torch.nn.functional.pad(small_tensor, pad_twoside[::-1])
 
 def apply_and_show_random_image(f, ds):
-
     # pick random raw image from dataset
     img_tensor = ds[np.random.randint(len(ds))][0]
 

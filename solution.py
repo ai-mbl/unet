@@ -40,6 +40,8 @@ from local import (
     apply_and_show_random_image,
     plot_receptive_field,
     show_random_dataset_image,
+    pad_to_size,
+    unnormalize
 )
 
 # %% tags=[]
@@ -1098,9 +1100,22 @@ def train(
             )
             # check if we log images in this iteration
             if step % log_image_interval == 0:
-                combined_image = torch.cat(
-                    [x.to("cpu"), y.to("cpu"), prediction.to("cpu").detach()], dim=3
+                x = unnormalize(x)
+                tb_logger.add_images(
+                    tag="input", img_tensor=x.to("cpu"), global_step=step
                 )
+                tb_logger.add_images(
+                    tag="target", img_tensor=y.to("cpu"), global_step=step
+                )
+                tb_logger.add_images(
+                    tag="prediction",
+                    img_tensor=prediction.to("cpu").detach(),
+                    global_step=step,
+                )
+                combined_image = torch.cat(
+                    [x, pad_to_size(y, x.size()), pad_to_size(prediction, x.size())], dim=3
+                )
+                
                 tb_logger.add_images(
                     tag="input_target_prediction",
                     img_tensor=combined_image,
