@@ -1232,7 +1232,7 @@ for epoch in range(n_epochs):
 # Congratulations! You trained your first UNet that you implemented all by yourself!
 #
 # We will keep using this U-Net throughout the rest of the exercises. Whenever you see an import like `import dlmbl-unet` or
-# `from dlmbl-unet import UNet` it will be importing from [this repository](https://github.com/dlmbl/dlmbl-unet) which contains the solution to this notebook as a package (including the bonus exercises so don't peak just yet if you wanna solve the bonus too).
+# `from dlmbl-unet import UNet` it will be importing from [this repository](https://github.com/dlmbl/dlmbl-unet) which contains the solution to this notebook as a package (including the bonus exercises so don't peek just yet if you wanna solve the bonus too).
 # </div>
 
 # %% [markdown] tags=[]
