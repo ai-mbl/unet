@@ -25,7 +25,7 @@ Please run the setup script to create the environment for this exercise and down
 source setup.sh
 ```
 
-Now open the `exercise.ipynb` notebook in vscode and make sure to select the `002-unet-exercise` kerrnel.
+Now open the `exercise.ipynb` notebook in your preferred tool and make sure to select the `02-unet-exercise` kernel.
 
 ## TA Info
 - For development purposes please install `pre-commit` to run black and ruff.
