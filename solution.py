@@ -1191,14 +1191,14 @@ logger = SummaryWriter(f"unet_runs/{model_name}")
 
 # %% tags=["solution"]
 model = UNet(
-    depth=4, in_channels=1
+    depth=3, in_channels=1, upsample_mode="bilinear", fmap_inc_factor=3, final_activation=torch.nn.Sigmoid()
 )  # SOLUTION 8.1: Declare your U-Net here and name it below
 model_name = "my_fav_unet"  # This name will be used in the tensorboard logs
 logger = SummaryWriter(f"unet_runs/{model_name}")
 
 # %% tags=[]
 # use adam optimizer
-optimizer = torch.optim.Adam(model.parameters())
+optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 
 # train for $5$ epochs
 # TASK 8.2: Run this cell and examine outputs in Tensorboard above!
