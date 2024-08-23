@@ -1191,7 +1191,11 @@ logger = SummaryWriter(f"unet_runs/{model_name}")
 
 # %% tags=["solution"]
 model = UNet(
-    depth=3, in_channels=1, upsample_mode="bilinear", fmap_inc_factor=3, final_activation=torch.nn.Sigmoid()
+    depth=3,
+    in_channels=1,
+    upsample_mode="bilinear",
+    fmap_inc_factor=3,
+    final_activation=torch.nn.Sigmoid(),
 )  # SOLUTION 8.1: Declare your U-Net here and name it below
 model_name = "my_fav_unet"  # This name will be used in the tensorboard logs
 logger = SummaryWriter(f"unet_runs/{model_name}")
