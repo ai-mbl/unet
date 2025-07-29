@@ -139,14 +139,26 @@ class TestUNet:
 
     def test_fmaps(self) -> None:
         unet = self.unetmodule(5, 1, 1, num_fmaps=17, fmap_inc_factor=4)
-        msg = "The computation of number of feature maps in the encoder is incorrect"
-        assert unet.compute_fmaps_encoder(3) == (272, 1088), msg
-        msg = "The computation of number of feature maps in the decoder is incorrect"
-        assert unet.compute_fmaps_decoder(3) == (5440, 1088), msg
-        msg = "The computation of number of feature maps in the encoder is incorrect for level 0"
-        assert unet.compute_fmaps_encoder(0) == (1, 17), msg
-        msg = "The computation of number of feature maps in the decoder is incorrect for level 0"
-        assert unet.compute_fmaps_decoder(0) == (85, 17), msg
+        
+        # Check encoder layer 3
+        msg = "The number of feature maps in the encoder is incorrect"
+        assert unet.left_convs[3].in_channels == 272, msg
+        assert unet.left_convs[3].out_channels == 1088, msg
+        
+        # Check decoder layer 3
+        msg = "The number of feature maps in the decoder is incorrect"
+        assert unet.right_convs[3].in_channels == 5440, msg
+        assert unet.right_convs[3].out_channels == 1088, msg
+        
+        # Check encoder layer 0
+        msg = "The number of feature maps in the encoder is incorrect for level 0"
+        assert unet.left_convs[0].in_channels == 1, msg
+        assert unet.left_convs[0].out_channels == 17, msg
+        
+        # Check decoder layer 0
+        msg = "The number of feature maps in the decoder is incorrect for level 0"
+        assert unet.right_convs[0].in_channels == 85, msg
+        assert unet.right_convs[0].out_channels == 17, msg
 
     def test_shape_valid(self) -> None:
         unetvalid = self.unetmodule(

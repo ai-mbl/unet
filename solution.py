@@ -316,6 +316,11 @@ class ConvBlock(torch.nn.Module):
             msg = "Only allowing odd kernel sizes."
             raise ValueError(msg)
 
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.kernel_size = kernel_size
+        self.padding = padding
+
         # TASK 3.1: Initialize your modules and define layers.
         # YOUR CODE HERE
 
@@ -354,6 +359,11 @@ class ConvBlock(torch.nn.Module):
         if kernel_size % 2 == 0:
             msg = "Only allowing odd kernel sizes."
             raise ValueError(msg)
+
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.kernel_size = kernel_size
+        self.padding = padding
 
         # SOLUTION 3.1: Initialize your modules and define layers.
         self.conv_pass = torch.nn.Sequential(
@@ -577,8 +587,7 @@ apply_and_show_random_image(out_conv, dataset)
 #     <h4>Task 6: U-Net Implementation</h4>
 #     <p>Now we will implement our U-Net! We have written some of it for you - follow the steps below to fill in the missing parts.</p>
 #     <ol>
-#         <li>Write the helper functions <code>compute_fmaps_encoder</code> and <code>compute_fmaps_decoder</code> that compute the number of input and output feature maps at each level of the U-Net.</li>
-#         <li>Declare a list of encoder (left) and decoder (right) ConvPasses depending on your depth using the helper functions you wrote above. Consider the special case at the bottom of the U-Net carefully!</li>
+#         <li>Declare a list of encoder (left) and decoder (right) ConvPasses. Carefully consider the input and output feature maps for each ConvPass!</li>
 #         <li>Declare an Upsample, Downsample, CropAndConcat, and OutputConv block.</li>
 #         <li>Implement the <code>forward</code> function, applying the modules you declared above in the proper order.</li>
 #         </ol>
@@ -648,61 +657,39 @@ class UNet(torch.nn.Module):
 
         # left convolutional passes
         self.left_convs = torch.nn.ModuleList()
-        # TASK 6.2A: Initialize list here
-
+        # TASK 6.1A: Initialize list here
+        # Loop through each level of the encoder from top (level=0) to bottom (level=self.depth - 1)
+        for level in range(self.depth): 
+            # conv = 
+            # Adding conv module to the list
+            self.left_convs.append(conv)
         # right convolutional passes
         self.right_convs = torch.nn.ModuleList()
-        # TASK 6.2B: Initialize list here
-
-        # TASK 6.3: Initialize other modules here
-
-    def compute_fmaps_encoder(self, level: int) -> tuple[int, int]:
-        """Compute the number of input and output feature maps for
-        a conv block at a given level of the UNet encoder (left side).
-
-        Args:
-            level (int): The level of the U-Net which we are computing
-            the feature maps for. Level 0 is the input level, level 1 is
-            the first downsampled layer, and level=depth - 1 is the bottom layer.
-
-        Output (tuple[int, int]): The number of input and output feature maps
-            of the encoder convolutional pass in the given level.
-        """
-        # TASK 6.1A: Implement this function
-        pass
-
-    def compute_fmaps_decoder(self, level: int) -> tuple[int, int]:
-        """Compute the number of input and output feature maps for a conv block
-        at a given level of the UNet decoder (right side). Note:
-        The bottom layer (depth - 1) is considered an "encoder" conv pass,
-        so this function is only valid up to depth - 2.
-
-        Args:
-            level (int): The level of the U-Net which we are computing
-            the feature maps for. Level 0 is the input level, level 1 is
-            the first downsampled layer, and level=depth - 1 is the bottom layer.
-
-        Output (tuple[int, int]): The number of input and output feature maps
-            of the encoder convolutional pass in the given level.
-        """
-        # TASK 6.1B: Implement this function
-        pass
+        # TASK 6.1B: Initialize list here
+        # Loop through each level of the decoder from top (level=0) to one above bottom (level=self.depth - 2)
+        for level in range(self.depth - 1):
+            # Initialize conv module
+            # conv = 
+            # Adding conv module to the list
+            self.right_convs.append(conv)
+        
+        # TASK 6.2: Initialize other modules here
 
     def forward(self, x):
         # left side
         # Hint - you will need the outputs of each convolutional block in the encoder for the skip connection, so you need to hold on to those output tensors
         for i in range(self.depth - 1):
-            # TASK 6.4A: Implement encoder here
+            # TASK 6.3A: Implement encoder here
             ...
 
         # bottom
-        # TASK 6.4B: Implement bottom of U-Net here
+        # TASK 6.3B: Implement bottom of U-Net here
 
         # right
         for i in range(0, self.depth - 1)[::-1]:
-            # TASK 6.4C: Implement decoder here
+            # TASK 6.3C: Implement decoder here
             ...
-        # TASK 6.4D: Apply the final convolution and return the output
+        # TASK 6.3D: Apply the final convolution and return the output
         return
 
 
@@ -769,28 +756,31 @@ class UNet(torch.nn.Module):
 
         # left convolutional passes
         self.left_convs = torch.nn.ModuleList()
-        # SOLUTION 6.2A: Initialize list here
+        # SOLUTION 6.1A: Initialize list here
+        # Loop through each level of the encoder from top (level=0) to bottom (level=self.depth - 1)
         for level in range(self.depth):
             fmaps_in, fmaps_out = self.compute_fmaps_encoder(level)
-            self.left_convs.append(
-                ConvBlock(fmaps_in, fmaps_out, self.kernel_size, self.padding)
-            )
+            conv = ConvBlock(fmaps_in, fmaps_out, self.kernel_size, self.padding)
+            # Adding conv module to the list
+            self.left_convs.append(conv)
 
         # right convolutional passes
         self.right_convs = torch.nn.ModuleList()
-        # SOLUTION 6.2B: Initialize list here
+        # SOLUTION 6.1B: Initialize list here
+        # Loop through each level of the decoder from top (level=0) to one above bottom (level=self.depth - 2)
         for level in range(self.depth - 1):
             fmaps_in, fmaps_out = self.compute_fmaps_decoder(level)
-            self.right_convs.append(
-                ConvBlock(
-                    fmaps_in,
-                    fmaps_out,
-                    self.kernel_size,
-                    self.padding,
-                )
+            # Initialize conv module
+            conv = ConvBlock(
+                fmaps_in,
+                fmaps_out,
+                self.kernel_size,
+                self.padding,
             )
+            # Adding conv module to the list
+            self.right_convs.append(conv)
 
-        # SOLUTION 6.3: Initialize other modules here
+        # SOLUTION 6.2: Initialize other modules here
         self.downsample = Downsample(self.downsample_factor)
         self.upsample = torch.nn.Upsample(
             scale_factor=self.downsample_factor,
@@ -850,26 +840,26 @@ class UNet(torch.nn.Module):
         convolution_outputs = []
         layer_input = x
         for i in range(self.depth - 1):
-            # SOLUTION 6.4A: Implement encoder here
+            # SOLUTION 6.3A: Implement encoder here
             conv_out = self.left_convs[i](layer_input)
             convolution_outputs.append(conv_out)
             downsampled = self.downsample(conv_out)
             layer_input = downsampled
 
         # bottom
-        # SOLUTION 6.4B: Implement bottom of U-Net here
+        # SOLUTION 6.3B: Implement bottom of U-Net here
         conv_out = self.left_convs[-1](layer_input)
         layer_input = conv_out
 
         # right
         for i in range(0, self.depth - 1)[::-1]:
-            # SOLUTION 6.4C: Implement decoder here
+            # SOLUTION 6.3C: Implement decoder here
             upsampled = self.upsample(layer_input)
             concat = self.crop_and_concat(convolution_outputs[i], upsampled)
             conv_output = self.right_convs[i](concat)
             layer_input = conv_output
 
-        # SOLUTION 6.4D: Apply the final convolution and return the output
+        # SOLUTION 6.3D: Apply the final convolution and return the output
         return self.final_conv(layer_input)
 
 
@@ -1317,6 +1307,11 @@ class ConvBlock(torch.nn.Module):
             msg = "Only allowing odd kernel sizes."
             raise ValueError(msg)
 
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.kernel_size = kernel_size
+        self.padding = padding
+
         # TASK 10C: Initialize your modules and define layers.
         # Use the convolution module matching `ndim`.
         # YOUR CODE HERE
@@ -1441,72 +1436,45 @@ class UNet(torch.nn.Module):
         # left convolutional passes
         self.left_convs = torch.nn.ModuleList()
         # TASK 10G: Initialize list here
-        # After you implemented the conv pass you can copy this from TASK 6.2A,
-        # but make sure to pass the ndim argument
+        # Loop through each level of the encoder from top (level=0) to bottom (level=self.depth - 1)
+        for level in range(self.depth): 
+            # conv = 
+            # Adding conv module to the list
+            self.left_convs.append(conv)
 
         # right convolutional passes
         self.right_convs = torch.nn.ModuleList()
         # TASK 10H: Initialize list here
-        # After you implemented the conv pass you can copy this from TASK 6.2B,
-        # but make sure to pass the ndim argument
+        # Loop through each level of the decoder from top (level=0) to one above bottom (level=self.depth - 2)
+        for level in range(self.depth - 1):
+            # Initialize conv module
+            # conv = 
+            # Adding conv module to the list
+            self.right_convs.append(conv)
 
         # TASK 10I: Initialize other modules here
-        # Same here, copy over from TASK 6.3, but make sure to add the ndim argument
+        # Same here, copy over from TASK 6.2, but make sure to add the ndim argument
         # as needed.
-
-    def compute_fmaps_encoder(self, level: int) -> tuple[int, int]:
-        """Compute the number of input and output feature maps for
-        a conv block at a given level of the UNet encoder (left side).
-
-        Args:
-            level (int): The level of the U-Net which we are computing
-            the feature maps for. Level 0 is the input level, level 1 is
-            the first downsampled layer, and level=depth - 1 is the bottom layer.
-
-        Output (tuple[int, int]): The number of input and output feature maps
-            of the encoder convolutional pass in the given level.
-        """
-        # TASK 10J: Implement this function.
-        # You can copy from TASK 6.1A
-        pass
-
-    def compute_fmaps_decoder(self, level: int) -> tuple[int, int]:
-        """Compute the number of input and output feature maps for a conv block
-        at a given level of the UNet decoder (right side). Note:
-        The bottom layer (depth - 1) is considered an "encoder" conv pass,
-        so this function is only valid up to depth - 2.
-
-        Args:
-            level (int): The level of the U-Net which we are computing
-            the feature maps for. Level 0 is the input level, level 1 is
-            the first downsampled layer, and level=depth - 1 is the bottom layer.
-
-        Output (tuple[int, int]): The number of input and output feature maps
-            of the encoder convolutional pass in the given level.
-        """
-        # TASK 10K: Implement this function.
-        # You can copy from TASK 6.1B
-        pass
 
     def forward(self, x):
         # left side
         # Hint - you will need the outputs of each convolutional block in the encoder for the skip connection, so you need to hold on to those output tensors
         for i in range(self.depth - 1):
             # TASK 10L: Implement encoder here
-            # Copy from TASK 6.4A
+            # Copy from TASK 6.3A
             ...
 
         # bottom
         # TASK 10M: Implement bottom of U-Net here
-        # Copy from TASK 6.4B
+        # Copy from TASK 6.3B
 
         # right
         for i in range(0, self.depth - 1)[::-1]:
             # TASK 10N: Implement decoder here
-            # Copy from TASK 6.4C
+            # Copy from TASK 6.3C
             ...
         # TASK 10O: Apply the final convolution and return the output
-        # Copy from TASK 6.4D
+        # Copy from TASK 6.3D
         return
 
 
@@ -1580,6 +1548,11 @@ class ConvBlock(torch.nn.Module):
         if kernel_size % 2 == 0:
             msg = "Only allowing odd kernel sizes."
             raise ValueError(msg)
+
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.kernel_size = kernel_size
+        self.padding = padding
 
         # SOLUTION 10C: Initialize your modules and define layers.
         # Use the convolution module matching `ndim`.
@@ -1724,30 +1697,33 @@ class UNet(torch.nn.Module):
         # left convolutional passes
         self.left_convs = torch.nn.ModuleList()
         # SOLUTION 10G: Initialize list here
-        # After you implemented the conv pass you can copy this from TASK 6.2A,
+        # After you implemented the conv pass you can copy this from TASK 6.1A,
         # but make sure to pass the ndim argument
+        # Loop through each level of the encoder from top (level=0) to bottom (level=self.depth - 1)
         for level in range(self.depth):
             fmaps_in, fmaps_out = self.compute_fmaps_encoder(level)
-            self.left_convs.append(
-                ConvBlock(
-                    fmaps_in, fmaps_out, self.kernel_size, self.padding, ndim=ndim
-                )
+            conv = ConvBlock(
+                fmaps_in, fmaps_out, self.kernel_size, self.padding, ndim=ndim
             )
+            # Adding conv module to the list
+            self.left_convs.append(conv)
         # right convolutional passes
         self.right_convs = torch.nn.ModuleList()
         # SOLUTION 10H: Initialize list here
-        # After you implemented the conv pass you can copy this from TASK 6.2B,
+        # After you implemented the conv pass you can copy this from TASK 6.1B,
         # but make sure to pass the ndim argument
+        # Loop through each level of the decoder from top (level=0) to one above bottom (level=self.depth - 2)
         for level in range(self.depth - 1):
             fmaps_in, fmaps_out = self.compute_fmaps_decoder(level)
-            self.right_convs.append(
-                ConvBlock(
-                    fmaps_in, fmaps_out, self.kernel_size, self.padding, ndim=ndim
-                )
+            # Initialize conv module
+            conv = ConvBlock(
+                fmaps_in, fmaps_out, self.kernel_size, self.padding, ndim=ndim
             )
+            # Adding conv module to the list
+            self.right_convs.append(conv)
 
         # SOLUTION 10I: Initialize other modules here
-        # Same here, copy over from TASK 6.3, but make sure to add the ndim argument
+        # Same here, copy over from TASK 6.2, but make sure to add the ndim argument
         # as needed.
         self.downsample = Downsample(self.downsample_factor, ndim=ndim)
         self.upsample = torch.nn.Upsample(
@@ -1775,7 +1751,6 @@ class UNet(torch.nn.Module):
             of the encoder convolutional pass in the given level.
         """
         # SOLUTION 10J: Implement this function.
-        # You can copy from TASK 6.1A
         if level == 0:
             fmaps_in = self.in_channels
         else:
@@ -1799,7 +1774,6 @@ class UNet(torch.nn.Module):
             of the encoder convolutional pass in the given level.
         """
         # SOLUTION 10K: Implement this function.
-        # You can copy from TASK 6.1B
         fmaps_out = self.num_fmaps * self.fmap_inc_factor ** (level)
         concat_fmaps = self.compute_fmaps_encoder(level)[
             1
@@ -1815,7 +1789,7 @@ class UNet(torch.nn.Module):
         layer_input = x
         for i in range(self.depth - 1):
             # SOLUTION 10L: Implement encoder here
-            # Copy from TASK 6.4A
+            # Copy from TASK 6.3A
             conv_out = self.left_convs[i](layer_input)
             convolution_outputs.append(conv_out)
             downsampled = self.downsample(conv_out)
@@ -1823,21 +1797,21 @@ class UNet(torch.nn.Module):
 
         # bottom
         # SOLUTION 10M: Implement bottom of U-Net here
-        # Copy from TASK 6.4B
+        # Copy from TASK 6.3B
         conv_out = self.left_convs[-1](layer_input)
         layer_input = conv_out
 
         # right
         for i in range(0, self.depth - 1)[::-1]:
             # SOLUTION 10N: Implement decoder here
-            # Copy from TASK 6.4C
+            # Copy from TASK 6.3C
             upsampled = self.upsample(layer_input)
             concat = self.crop_and_concat(convolution_outputs[i], upsampled)
             conv_output = self.right_convs[i](concat)
             layer_input = conv_output
 
         # SOLUTION 10O: Apply the final convolution and return the output
-        # Copy from TASK 6.4D
+        # Copy from TASK 6.3D
         return self.final_conv(layer_input)
 
 
