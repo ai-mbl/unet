@@ -11,4 +11,5 @@ pytorch-cuda
 ipykernel
 jupytext
 numpy<2
+pytest
 

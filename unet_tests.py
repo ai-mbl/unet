@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-
+import pytest
 
 class TestDown:
     def __init__(self, down_module):
@@ -11,9 +11,25 @@ class TestDown:
         msg = "Your `check_valid` function is not right yet."
         assert down2.check_valid((8, 8)), msg
         assert not down2.check_valid((9, 9)), msg
+        assert not down2.check_valid((9, 8)), msg
+        assert not down2.check_valid((8, 9)), msg
         down3 = self.down_module(3)
         assert down3.check_valid((9, 9)), msg
         assert not down3.check_valid((8, 8)), msg
+        assert not down3.check_valid((9, 8)), msg
+        assert not down3.check_valid((8, 9)), msg
+
+    def test_shape_checker_error(self) -> None:
+        down2 = self.down_module(2)
+        with pytest.raises(RuntimeError):
+            x = torch.zeros((2, 4, 7, 8))
+            down2(x)
+        with pytest.raises(RuntimeError):
+            x = torch.zeros((2, 4, 8, 7))
+            down2(x)
+        with pytest.raises(RuntimeError):
+            x = torch.zeros((4, 7, 8))
+            down2(x)
 
     def test_shape(self) -> None:
         tensor2 = torch.arange(16).reshape((1, 4, 4))
@@ -26,6 +42,7 @@ class TestDown:
 
     def run(self):
         self.test_shape_checker()
+        self.test_shape_checker_error()
         self.test_shape()
         print("TESTS PASSED")
 

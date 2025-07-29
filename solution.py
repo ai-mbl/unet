@@ -197,7 +197,7 @@ class Downsample(torch.nn.Module):
         # YOUR CODE HERE
 
     def forward(self, x):
-        if not self.check_valid(tuple(x.size()[2:])):
+        if not self.check_valid(tuple(x.size()[-2:])):
             raise RuntimeError(
                 "Can not downsample shape %s with factor %s"
                 % (x.size(), self.downsample_factor)
@@ -229,7 +229,7 @@ class Downsample(torch.nn.Module):
         return True
 
     def forward(self, x):
-        if not self.check_valid(tuple(x.size()[2:])):
+        if not self.check_valid(tuple(x.size()[-2:])):
             raise RuntimeError(
                 "Can not downsample shape %s with factor %s"
                 % (x.size(), self.downsample_factor)
@@ -394,7 +394,7 @@ apply_and_show_random_image(conv, dataset)
 # <div class="alert alert-warning">
 #
 # <h4>Question: Padding</h4>
-# As you saw, the convolution modules in pytorch allow you to directly use the keywords `"valid"` or `"same"` for your padding mode. How would you go about calculating the amount of padding you need based on the kernel size?
+# As you saw, the convolution modules in pytorch allow you to directly use the keywords <code>"valid"</code> or <code>"same"</code> for your padding mode. How would you go about calculating the amount of padding you need based on the kernel size?
 #
 # If you'd like, you can test your assumption by editing the `ConvBlock` to pass your own calculated value to the `padding` keyword in the conv module and rerun the test
 # </div>
@@ -1260,7 +1260,7 @@ class Downsample(torch.nn.Module):
         if ndim not in (2, 3):
             msg = f"Invalid number of dimensions: {ndim=}. Options are 2 or 3."
             raise ValueError(msg)
-
+        self.ndim = ndim
         self.downsample_factor = downsample_factor
         # TASK 10A: Initialize the maxpool module
         # Define what the downop should be based on `ndim`.
@@ -1276,7 +1276,7 @@ class Downsample(torch.nn.Module):
         # You can likely copy this from Task 2B2
 
     def forward(self, x):
-        if not self.check_valid(tuple(x.size()[2:])):
+        if not self.check_valid(tuple(x.size()[-self.ndim:])):
             raise RuntimeError(
                 "Can not downsample shape %s with factor %s"
                 % (x.size(), self.downsample_factor)
@@ -1540,7 +1540,7 @@ class Downsample(torch.nn.Module):
         return True
 
     def forward(self, x):
-        if not self.check_valid(tuple(x.size()[2:])):
+        if not self.check_valid(tuple(x.size()[-2:])):
             raise RuntimeError(
                 "Can not downsample shape %s with factor %s"
                 % (x.size(), self.downsample_factor)
