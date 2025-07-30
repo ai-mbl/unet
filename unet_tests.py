@@ -192,6 +192,23 @@ class TestUNet:
         assert unetvalid(torch.ones((2, 2, 140, 140, 140))).shape == torch.Size(
             (2, 1, 4, 4, 4)
         ), msg
+    
+    def test_shape_valid_3d_tiled(self) -> None:
+        unetvalid = self.unetmodule(
+            depth=3,
+            in_channels=2,
+            out_channels=1,
+            num_fmaps=5,
+            fmap_inc_factor=5,
+            downsample_factor=3,
+            kernel_size=5,
+            padding="valid",
+            ndim=3,
+        )
+        msg = "The output shape of your UNet is incorrect for valid padding in 3D."
+        assert unetvalid(torch.ones((2, 2, 158, 158, 158))).shape == torch.Size(
+            (2, 1, 18, 18, 18)
+        ), msg
 
     def test_shape_same(self) -> None:
         unetsame = self.unetmodule(
@@ -236,4 +253,10 @@ class TestUNet:
         self.test_fmaps()
         self.test_shape_valid_3d()
         self.test_shape_same_3d()
+        print("TESTS PASSED")
+    
+    def run3d_tiled(self):
+        self.test_fmaps()
+        self.test_shape_same_3d()
+        self.test_shape_valid_3d_tiled()
         print("TESTS PASSED")

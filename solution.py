@@ -430,11 +430,11 @@ apply_and_show_random_image(conv, dataset)
 
 
 # %% tags=["task"]
-def center_crop(x, y):
-    """Center-crop x to match spatial dimensions given by y."""
+def center_crop(x, target_spatial_shape):
+    """Center-crop x to match spatial dimensions given by target_spatial_shape."""
 
-    x_target_size = x.size()[:2] + y.size()[2:]
-
+    x_target_size = x.size()[:2] + torch.Size(target_spatial_shape)
+    print(x_target_size)
     offset = tuple((a - b) // 2 for a, b in zip(x.size(), x_target_size))
 
     slices = tuple(slice(o, o + s) for o, s in zip(offset, x_target_size))
@@ -444,16 +444,16 @@ def center_crop(x, y):
 
 class CropAndConcat(torch.nn.Module):
     def forward(self, encoder_output, upsample_output):
+        upsample_spatial_shape = upsample_output.size()[2:]
         # TASK 4: Implement the forward function
         ...
 
 
 # %% tags=["solution"]
-def center_crop(x, y):
-    """Center-crop x to match spatial dimensions given by y."""
+def center_crop(x, target_spatial_shape):
+    """Center-crop x to match spatial dimensions given by target_spatial_shape."""
 
-    x_target_size = x.size()[:2] + y.size()[2:]
-
+    x_target_size = x.size()[:2] + torch.Size(target_spatial_shape)
     offset = tuple((a - b) // 2 for a, b in zip(x.size(), x_target_size))
 
     slices = tuple(slice(o, o + s) for o, s in zip(offset, x_target_size))
@@ -463,8 +463,9 @@ def center_crop(x, y):
 
 class CropAndConcat(torch.nn.Module):
     def forward(self, encoder_output, upsample_output):
+        upsample_spatial_shape = upsample_output.size()[2:]
         # SOLUTION 4: Implement the forward function
-        encoder_cropped = center_crop(encoder_output, upsample_output)
+        encoder_cropped = center_crop(encoder_output, upsample_spatial_shape)
 
         return torch.cat([encoder_cropped, upsample_output], dim=1)
 
@@ -1061,7 +1062,7 @@ def train(
         prediction = model(x)
         # if necessary, crop the masks to match the model output shape
         if prediction.shape != y.shape:
-            y = center_crop(y, prediction)
+            y = center_crop(y, prediction.size()[2:])
         if y.dtype != prediction.dtype:
             y = y.type(prediction.dtype)
         loss = loss_function(prediction, y)
@@ -1820,3 +1821,273 @@ class UNet(torch.nn.Module):
 
 # %% tags=[]
 unet_tests.TestUNet(UNet).run3d()
+
+# %% [markdown] tags=[]
+# ## Bonus 2: Tilable UNet
+# In order to process arbitrarily large images, we can divide the image into smaller tiles and process each tile separately. To avoid artifacts at tile boundaries, the U-Net needs to be equivariant w.r.t. translations by the tile size. Add a cropping layer at the end of the U-Net that crops the output to a size for which the U-Net is equivariant. Can tranlsational equivariance be achieved for any parameter setting?
+
+# %% [markdown] tags=[]
+# <div class="alert alert-block alert-info">
+#     <h3>Task 11: Implement a Tilable U-Net</h3>
+#     <p>Modify the U-Net to make it suitable for processing large images by tiling. You'll need to add a cropping
+#          mechanism to ensure translational equivariance.</p>
+#     <ol>
+#         <li>Copy over your UNet implemntation from Task 10.</li>
+#         <li>Crop the output of the U-Net to an appropriate tile size</li>
+#         <li>Add a conditional to only crop the outputs for U-Nets that can be translation equivariant.</li>
+#     </ol>
+# </div>
+
+# %% tags=["task"]
+class UNet(torch.nn.Module):
+    def __init__(
+        self,
+        depth: int,
+        in_channels: int,
+        out_channels: int = 1,
+        final_activation: torch.nn.Module | None = None,
+        num_fmaps: int = 64,
+        fmap_inc_factor: int = 2,
+        downsample_factor: int = 2,
+        kernel_size: int = 3,
+        padding: str = "same",
+        upsample_mode: str = "nearest",
+        ndim: int = 2,
+    ):
+        """A U-Net for 2D or 3D input that expects tensors shaped like:
+          ``(batch, channels, height, width)`` or ``(batch, channels, depth, height, width)``,
+          respectively.
+      Args:
+          depth:
+              The number of levels in the U-Net. 2 is the smallest that really
+              makes sense for the U-Net architecture, as a one layer U-Net is
+              basically just 2 conv blocks.
+          in_channels:
+              The number of input channels in your dataset.
+          out_channels (optional):
+              How many output channels you want. Depends on your task. Defaults to 1.
+          final_activation (optional):
+              What activation to use in your final output block. Depends on your task.
+              Defaults to None.
+          num_fmaps (optional):
+              The number of feature maps in the first layer. Defaults to 64.
+          fmap_inc_factor (optional):
+              By how much to multiply the number of feature maps between
+              layers. Encoder layer ``l`` will have ``num_fmaps*fmap_inc_factor**l``
+              output feature maps. Defaults to 2.
+          downsample_factor (optional):
+              Factor to use for down- and up-sampling the feature maps between layers.
+              Defaults to 2.
+          kernel_size (int, optional):
+              Kernel size to use in convolutions on both sides of the UNet.
+              Defaults to 3.
+          padding (str, optional):
+              How to pad convolutions. Either 'same' or 'valid'. Defaults to "same."
+          upsample_mode (str, optional):
+              The upsampling mode to pass to torch.nn.Upsample. Usually "nearest"
+              or "bilinear." Defaults to "nearest."
+          ndim (int, optional): Number of dimensions for the U-Net. Use 2 for 2D U-Net and
+              3 for 3D U-Net. Defaults to 2.
+      """
+        super().__init__()
+        # TASK 11.1: Initialize the modules of the U-Net
+        # Copy from TASK 10
+        
+    def forward(self, x):
+        # TASK 11.1: Apply the modules of the U-Net
+        # Copy from TASK 10
+        
+        # TASK 11.3: Add conditional 
+        
+        # TASK 11.2: Crop the output of the U-Net to an appropriate tile size
+        
+        return
+
+# %% tags=["solution"]
+class UNet(torch.nn.Module):
+    def __init__(
+        self,
+        depth: int,
+        in_channels: int,
+        out_channels: int = 1,
+        final_activation: torch.nn.Module | None = None,
+        num_fmaps: int = 64,
+        fmap_inc_factor: int = 2,
+        downsample_factor: int = 2,
+        kernel_size: int = 3,
+        padding: str = "same",
+        upsample_mode: str = "nearest",
+        ndim: int = 2,
+    ):
+        """A U-Net for 2D or 3D input that expects tensors shaped like:
+          ``(batch, channels, height, width)`` or ``(batch, channels, depth, height, width)``,
+          respectively.
+      Args:
+          depth:
+              The number of levels in the U-Net. 2 is the smallest that really
+              makes sense for the U-Net architecture, as a one layer U-Net is
+              basically just 2 conv blocks.
+          in_channels:
+              The number of input channels in your dataset.
+          out_channels (optional):
+              How many output channels you want. Depends on your task. Defaults to 1.
+          final_activation (optional):
+              What activation to use in your final output block. Depends on your task.
+              Defaults to None.
+          num_fmaps (optional):
+              The number of feature maps in the first layer. Defaults to 64.
+          fmap_inc_factor (optional):
+              By how much to multiply the number of feature maps between
+              layers. Encoder layer ``l`` will have ``num_fmaps*fmap_inc_factor**l``
+              output feature maps. Defaults to 2.
+          downsample_factor (optional):
+              Factor to use for down- and up-sampling the feature maps between layers.
+              Defaults to 2.
+          kernel_size (int, optional):
+              Kernel size to use in convolutions on both sides of the UNet.
+              Defaults to 3.
+          padding (str, optional):
+              How to pad convolutions. Either 'same' or 'valid'. Defaults to "same."
+          upsample_mode (str, optional):
+              The upsampling mode to pass to torch.nn.Upsample. Usually "nearest"
+              or "bilinear." Defaults to "nearest."
+          ndim (int, optional): Number of dimensions for the U-Net. Use 2 for 2D U-Net and
+              3 for 3D U-Net. Defaults to 2.
+      """
+        super().__init__()
+        # SOLUTION 11.1: Initialize the modules of the U-Net
+        if ndim not in (2, 3):
+            msg = f"Invalid number of dimensions: {ndim=}. Options are 2 or 3."
+            raise ValueError(msg)
+        if ndim == 2 and upsample_mode == "trilinear":
+            msg = "Trilinear interpolation is not valid for a 2D UNet. Please choose `nearest` or `bilinear` instead"
+            raise ValueError(msg)
+        if ndim == 3 and upsample_mode == "bilinear":
+            msg = "Bilinear interpolation is not valid for a 3D UNet. Please choose `nearest` or `trilinear` instead"
+            raise ValueError(msg)
+        self.depth = depth
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.final_activation = final_activation
+        self.num_fmaps = num_fmaps
+        self.fmap_inc_factor = fmap_inc_factor
+        self.downsample_factor = downsample_factor
+        self.kernel_size = kernel_size
+        self.padding = padding
+        self.upsample_mode = upsample_mode
+        self.ndim = ndim
+
+        # left convolutional passes
+        self.left_convs = torch.nn.ModuleList()
+        # Loop through each level of the encoder from top (level=0) to bottom (level=self.depth - 1)
+        for level in range(self.depth):
+            fmaps_in, fmaps_out = self.compute_fmaps_encoder(level)
+            conv = ConvBlock(
+                fmaps_in, fmaps_out, self.kernel_size, self.padding, ndim=ndim
+            )
+            # Adding conv module to the list
+            self.left_convs.append(conv)
+        # right convolutional passes
+        self.right_convs = torch.nn.ModuleList()
+        # Loop through each level of the decoder from top (level=0) to one above bottom (level=self.depth - 2)
+        for level in range(self.depth - 1):
+            fmaps_in, fmaps_out = self.compute_fmaps_decoder(level)
+            # Initialize conv module
+            conv = ConvBlock(
+                fmaps_in, fmaps_out, self.kernel_size, self.padding, ndim=ndim
+            )
+            # Adding conv module to the list
+            self.right_convs.append(conv)
+
+        self.downsample = Downsample(self.downsample_factor, ndim=ndim)
+        self.upsample = torch.nn.Upsample(
+            scale_factor=self.downsample_factor,
+            mode=self.upsample_mode,
+        )
+        self.crop_and_concat = CropAndConcat()
+        self.final_conv = OutputConv(
+            self.compute_fmaps_decoder(0)[1],
+            self.out_channels,
+            self.final_activation,
+            ndim=ndim,
+        )
+
+    def compute_fmaps_encoder(self, level: int) -> tuple[int, int]:
+        """Compute the number of input and output feature maps for
+        a conv block at a given level of the UNet encoder (left side).
+
+        Args:
+            level (int): The level of the U-Net which we are computing
+            the feature maps for. Level 0 is the input level, level 1 is
+            the first downsampled layer, and level=depth - 1 is the bottom layer.
+
+        Output (tuple[int, int]): The number of input and output feature maps
+            of the encoder convolutional pass in the given level.
+        """
+        # SOLUTION 10J: Implement this function.
+        if level == 0:
+            fmaps_in = self.in_channels
+        else:
+            fmaps_in = self.num_fmaps * self.fmap_inc_factor ** (level - 1)
+
+        fmaps_out = self.num_fmaps * self.fmap_inc_factor**level
+        return fmaps_in, fmaps_out
+
+    def compute_fmaps_decoder(self, level: int) -> tuple[int, int]:
+        """Compute the number of input and output feature maps for a conv block
+        at a given level of the UNet decoder (right side). Note:
+        The bottom layer (depth - 1) is considered an "encoder" conv pass,
+        so this function is only valid up to depth - 2.
+
+        Args:
+            level (int): The level of the U-Net which we are computing
+            the feature maps for. Level 0 is the input level, level 1 is
+            the first downsampled layer, and level=depth - 1 is the bottom layer.
+
+        Output (tuple[int, int]): The number of input and output feature maps
+            of the encoder convolutional pass in the given level.
+        """
+        # SOLUTION 10K: Implement this function.
+        fmaps_out = self.num_fmaps * self.fmap_inc_factor ** (level)
+        concat_fmaps = self.compute_fmaps_encoder(level)[
+            1
+        ]  # The channels that come from the skip connection
+        fmaps_in = concat_fmaps + self.num_fmaps * self.fmap_inc_factor ** (level + 1)
+
+        return fmaps_in, fmaps_out
+        
+    def forward(self, x):
+        # SOLUTION 11.1: Apply the modules of the U-Net
+        # left side
+        # Hint - you will need the outputs of each convolutional block in the encoder for the skip connection, so you need to hold on to those output tensors
+        convolution_outputs = []
+        layer_input = x
+        for i in range(self.depth - 1):
+            conv_out = self.left_convs[i](layer_input)
+            convolution_outputs.append(conv_out)
+            downsampled = self.downsample(conv_out)
+            layer_input = downsampled
+
+        # bottom
+        conv_out = self.left_convs[-1](layer_input)
+        layer_input = conv_out
+
+        # right
+        for i in range(0, self.depth - 1)[::-1]:
+            upsampled = self.upsample(layer_input)
+            concat = self.crop_and_concat(convolution_outputs[i], upsampled)
+            conv_output = self.right_convs[i](concat)
+            layer_input = conv_output
+
+        output = self.final_conv(layer_input)
+        # TASK 11.3: Add conditional 
+        if self.padding == "valid":
+        # TASK 11.2: Crop the output of the U-Net to an appropriate tile size
+            output_size = output.size()[2:]
+            lowest_res = self.downsample_factor ** (self.depth-1)
+            target_output_size = output_size - output_size % np.array((lowest_res,)*self.ndim)
+            output = center_crop(output, target_output_size)
+        return output
+    
+# %% tags=[]
+unet_tests.TestUNet(UNet).run3d_tiled()
