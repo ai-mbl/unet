@@ -1,5 +1,5 @@
 black
-pytorch
+torch
 torchvision
 jupyter 
 imageio
@@ -7,7 +7,6 @@ scipy
 scikit-image
 tensorboard
 matplotlib
-pytorch-cuda
 ipykernel
 jupytext
 numpy<2
