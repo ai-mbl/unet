@@ -101,8 +101,8 @@ sample_2d_input.shape, sample_2d_input
 #     <h4>Task 1: Try out different upsampling techniques</h4>
 #     <p>For our U-net, we will use the built-in PyTorch Upsample Module. Here we will practice declaring and calling an Upsample module with different parameters.</p>
 #     <ol>
-#         <li>Declare an instance of the pytorch Upsample module with <code>scale_factor</code> 2 and mode <code>"nearest"</code>.</li>
-#         <li>Call the instance of Upsample on the <code>sample_2d_input</code> to see what the nearest mode does.</li>
+#         <li>Declare an instance of the pytorch Upsample module with <code style="color: black">scale_factor</code> 2 and mode <code style="color: black">"nearest"</code>.</li>
+#         <li>Call the instance of Upsample on the <code style="color: black">sample_2d_input</code> to see what the nearest mode does.</li>
 #         <li>Vary the scale factor and mode to see what changes. Check the documentation for possible modes and required input dimensions.</li>
 #     </ol>
 # </div>
@@ -153,7 +153,7 @@ sample_2d_input
 # <div class="alert alert-block alert-info">
 #     <h4>Task 2A: Try out max pooling</h4>
 #         <p>Using the docs for <a href=https://pytorch.org/docs/stable/generated/torch.nn.MaxPool2d.html>torch.nn.MaxPool2d</a>,
-#         try initializing the module and applying it to the sample input. Try varying the parameters to understand the effect of <code>kernel_size</code> and <code>stride</code>.
+#         try initializing the module and applying it to the sample input. Try varying the parameters to understand the effect of <code style="color: black">kernel_size</code> and <code style="color: black">stride</code>.
 #         </p>
 
 # %% tags=["task"]
@@ -171,7 +171,7 @@ max_pool(sample_2d_input)
 #     <h4>Task 2B: Implement a Downsample Module</h4>
 #     <p>This is very similar to the built in MaxPool2d, but additionally has to check if the downsample factor matches in the input size. Note that we provide the forward function for you - in future Modules, you will implement the forward yourself.</p>
 #     <ol>
-#         <li>Declare the submodules you want to use (in this case, <code>torch.nn.MaxPool2d</code> with the correct arguments) in the <code>__init__</code> function. In our Downsample Module, we do not want to use padding and the stride should match the input kernel size.</li>
+#         <li>Declare the submodules you want to use (in this case, <code style="color: black">torch.nn.MaxPool2d</code> with the correct arguments) in the <code style="color: black">__init__</code> function. In our Downsample Module, we do not want to use padding and the stride should match the input kernel size.</li>
 #         <li>Write a function to check if the downsample factor is valid. If the downsample factor does not evenly divide the dimensions of the input to the layer, this function should return False.</li>
 #     </ol>
 # </div>
@@ -238,15 +238,15 @@ class Downsample(torch.nn.Module):
         return self.down(x)
 
 
-# %% tags=[]
-down = Downsample(4)
-apply_and_show_random_image(down, dataset)
-
 # %% [markdown] tags=[]
 # We wrote some rudimentary tests for each of the torch modules you are writing. If you get an error from your code or an AssertionError from the test, you should probably have another look ath your implementation.
 
 # %% tags=[]
 unet_tests.TestDown(Downsample).run()
+
+# %% tags=[]
+down = Downsample(4)
+apply_and_show_random_image(down, dataset)
 
 # %% [markdown] tags=[]
 # ### Component 3: Convolution Block
@@ -281,8 +281,8 @@ unet_tests.TestDown(Downsample).run()
 #     <h4>Task 3: Implement a ConvBlock module</h4>
 #     <p>The convolution block (ConvBlock) of a standard U-Net has two 3x3 convolutions, each of which is followed by a ReLU activation. Our implementation will handle other sizes of convolutions as well. The first convolution in the block will handle changing the input number of feature maps/channels into the output, and the second convolution will have the same number of feature maps in and out.</p>
 #     <ol>
-#         <li>Declare the submodules you want to use in the <code>__init__</code> function. Because you will always be calling four submodules in sequence (<a href=https://pytorch.org/docs/stable/generated/torch.nn.Conv2d.html#torch.nn.Conv2d>torch.nn.Conv2d</a>, <a href=https://pytorch.org/docs/stable/generated/torch.nn.ReLU.html#torch.nn.ReLU>torch.nn.ReLU</a>, Conv2d, ReLU), you can use <a href=https://pytorch.org/docs/stable/generated/torch.nn.Sequential.html>torch.nn.Sequential</a> to hold the convolutions and ReLUs.</li>
-#         <li>Call the modules in the forward function. If you used <code>torch.nn.Sequential</code> in step 1, you only need to call the Sequential module, but if not, you can call the Conv2d and ReLU Modules explicitly.</li>
+#         <li>Declare the submodules you want to use in the <code style="color: black">__init__</code> function. Because you will always be calling four submodules in sequence (<a href=https://pytorch.org/docs/stable/generated/torch.nn.Conv2d.html#torch.nn.Conv2d>torch.nn.Conv2d</a>, <a href=https://pytorch.org/docs/stable/generated/torch.nn.ReLU.html#torch.nn.ReLU>torch.nn.ReLU</a>, Conv2d, ReLU), you can use <a href=https://pytorch.org/docs/stable/generated/torch.nn.Sequential.html>torch.nn.Sequential</a> to hold the convolutions and ReLUs.</li>
+#         <li>Call the modules in the forward function. If you used <code style="color: black">torch.nn.Sequential</code> in step 1, you only need to call the Sequential module, but if not, you can call the Conv2d and ReLU Modules explicitly.</li>
 #     </ol>
 # </div>
 #
@@ -404,7 +404,7 @@ apply_and_show_random_image(conv, dataset)
 # <div class="alert alert-warning">
 #
 # <h4>Question: Padding</h4>
-# As you saw, the convolution modules in pytorch allow you to directly use the keywords <code>"valid"</code> or <code>"same"</code> for your padding mode. How would you go about calculating the amount of padding you need based on the kernel size?
+# As you saw, the convolution modules in pytorch allow you to directly use the keywords <code style="color: black">"valid"</code> or <code style="color: black">"same"</code> for your padding mode. How would you go about calculating the amount of padding you need based on the kernel size?
 #
 # If you'd like, you can test your assumption by editing the `ConvBlock` to pass your own calculated value to the `padding` keyword in the conv module and rerun the test
 # </div>
@@ -421,9 +421,9 @@ apply_and_show_random_image(conv, dataset)
 # %% [markdown] tags=[]
 # <div class="alert alert-block alert-info">
 #     <h4>Task 4: Implement a CropAndConcat module</h4>
-#     <p>Below, you must implement the <code>forward</code> method, including the cropping (using the provided helper function <code>center_crop</code>) and the concatenation (using <a href=https://pytorch.org/docs/stable/generated/torch.cat.html#torch.cat>torch.cat</a>).
+#     <p>Below, you must implement the <code style="color: black">forward</code> method, including the cropping (using the provided helper function <code style="color: black">center_crop</code>) and the concatenation (using <a href=https://pytorch.org/docs/stable/generated/torch.cat.html#torch.cat>torch.cat</a>).
 # </p>
-# Hint: Use the <code>dim</code> keyword argument of <a href=https://pytorch.org/docs/stable/generated/torch.cat.html#torch.cat>torch.cat</a> to choose along which axis to concatenate the tensors.
+# Hint: Use the <code style="color: black">dim</code> keyword argument of <a href=https://pytorch.org/docs/stable/generated/torch.cat.html#torch.cat>torch.cat</a> to choose along which axis to concatenate the tensors.
 # </p>
 # Hint: The tensors have the layout (batch, channel, x, y)
 # </div>
@@ -484,8 +484,8 @@ unet_tests.TestCropAndConcat(CropAndConcat).run()
 # <div class="alert alert-block alert-info">
 #     <h4>Task 5: Implement an OutputConv Module</h4>
 #     <ol>
-#         <li>Define the convolution module in the <code>__init__</code> function. You can use a convolution with kernel size 1 to get the appropriate number of output channels. The activation submodule is provided for you.</li>
-#         <li>Call the final convolution and activation modules in the <code>forward</code> function</li>
+#         <li>Define the convolution module in the <code style="color: black">__init__</code> function. You can use a convolution with kernel size 1 to get the appropriate number of output channels. The activation submodule is provided for you.</li>
+#         <li>Call the final convolution and activation modules in the <code style="color: black">forward</code> function</li>
 #     </ol>
 # </div>
 
@@ -590,7 +590,7 @@ apply_and_show_random_image(out_conv, dataset)
 #     <ol>
 #         <li>Declare a list of encoder (left) and decoder (right) ConvPasses. Carefully consider the input and output feature maps for each ConvPass!</li>
 #         <li>Declare an Upsample, Downsample, CropAndConcat, and OutputConv block.</li>
-#         <li>Implement the <code>forward</code> function, applying the modules you declared above in the proper order.</li>
+#         <li>Implement the <code style="color: black">forward</code> function, applying the modules you declared above in the proper order.</li>
 #         </ol>
 # </div>
 
@@ -899,15 +899,15 @@ apply_and_show_random_image(simple_net, dataset)
 # <h4>Question: Receptive Field Size</h4>
 # What are the receptive field sizes of the following operations?
 #
-# 1. <code>torch.nn.Conv2d(1, 5, 3)</code>
-# 2. <code>torch.nn.Sequential(torch.nn.Conv2d(1, 5, 3), torch.nn.Conv2d(5,5,3))</code>
-# 3. <code>torch.nn.Sequential(torch.nn.Conv2d(1, 5, 3), torch.nn.Conv2d(5,5,5))</code>
-# 4. <code>Downsample(3)</code>
-# 5. <code>torch.nn.Sequential(ConvBlock(1, 5, 3), Downsample(2), ConvBlock(5,5,3)</code>
-# 6. <code>torch.nn.Upsample(2)</code>
-# 7. <code>torch.nn.Sequential(ConvBlock(1,5,3), Upsample(2), ConvBlock(5,5,3))</code>
-# 8. <code>torch.nn.Sequential(ConvBlock(1,5,3), Downsample(3), ConvBlock(5,5,3), Upsample(3), ConvBlock(5,5,3))</code>
-# 9. <code>UNet(depth=2, in_channels=1, downsample_factor=3, kernel_size=3)</code>
+# 1. <code style="color: black">torch.nn.Conv2d(1, 5, 3)</code>
+# 2. <code style="color: black">torch.nn.Sequential(torch.nn.Conv2d(1, 5, 3), torch.nn.Conv2d(5,5,3))</code>
+# 3. <code style="color: black">torch.nn.Sequential(torch.nn.Conv2d(1, 5, 3), torch.nn.Conv2d(5,5,5))</code>
+# 4. <code style="color: black">Downsample(3)</code>
+# 5. <code style="color: black">torch.nn.Sequential(ConvBlock(1, 5, 3), Downsample(2), ConvBlock(5,5,3)</code>
+# 6. <code style="color: black">torch.nn.Upsample(2)</code>
+# 7. <code style="color: black">torch.nn.Sequential(ConvBlock(1,5,3), Upsample(2), ConvBlock(5,5,3))</code>
+# 8. <code style="color: black">torch.nn.Sequential(ConvBlock(1,5,3), Downsample(3), ConvBlock(5,5,3), Upsample(3), ConvBlock(5,5,3))</code>
+# 9. <code style="color: black">UNet(depth=2, in_channels=1, downsample_factor=3, kernel_size=3)</code>
 #
 #
 # </div>
@@ -915,7 +915,7 @@ apply_and_show_random_image(simple_net, dataset)
 # %% [markdown] tags=[]
 # <div class="alert alert-block alert-info">
 #     <h4>Task 7: Receptive Field</h4>
-#     <p>The <code>plot_receptive_field</code> function visualizes the receptive field of a given U-Net - the square shows how many input pixels contribute to the output at the center pixel. Try it out with different U-Nets to get a sense of how varying the depth, kernel size, and downsample factor affect the receptive field of a U-Net.</p>
+#     <p>The <code style="color: black">plot_receptive_field</code> function visualizes the receptive field of a given U-Net - the square shows how many input pixels contribute to the output at the center pixel. Try it out with different U-Nets to get a sense of how varying the depth, kernel size, and downsample factor affect the receptive field of a U-Net.</p>
 # </div>
 
 # %% tags=["task"]
@@ -1124,19 +1124,18 @@ def train(
 The next two cells start tensorboard.
 <div class="alert alert-warning">
 If you are using VSCode and a remote server, you will need to forward the port to view the tensorboard. <br>
-Take note of the port number was assigned in the previous cell.(i.e <code> http://localhost:{port_number_assigned}</code>) <br>
+Take note of the port number was assigned in the previous cell.(i.e <code style="color: black"> http://localhost:{port_number_assigned}</code>) <br>
 
-Locate the your VSCode terminal and select the <code>Ports</code> tab <br>
+Locate the your VSCode terminal and select the <code style="color: black">Ports</code> tab <br>
 <ul>
-<li>Add a new port with the <code>port_number_assigned</code>
+<li>Add a new port with the <code style="color: black">port_number_assigned</code>
 </ul>
 Click on the link to view the tensorboard and it should open in your browser.
 </div>
 <div class="alert alert-warning">
-If you launched jupyter lab from ssh terminal, add <code>--host &lt;your-server-name&gt;</code> to the tensorboard command below. <code>&lt;your-server-name&gt;</code> is the address of your compute node that ends in amazonaws.com.
+If you launched jupyter lab from ssh terminal, add <code style="color: black">--host &lt;your-server-name&gt;</code> to the tensorboard command below. <code style="color: black">&lt;your-server-name&gt;</code> is the address of your compute node that ends in amazonaws.com.
 
 </div>
-
 """
 
 
@@ -2088,6 +2087,6 @@ class UNet(torch.nn.Module):
             target_output_size = output_size - output_size % np.array((lowest_res,)*self.ndim)
             output = center_crop(output, target_output_size)
         return output
-    
+
 # %% tags=[]
 unet_tests.TestUNet(UNet).run3d_tiled()
