@@ -588,7 +588,7 @@ apply_and_show_random_image(out_conv, dataset)
 #     <h4>Task 6: U-Net Implementation</h4>
 #     <p>Now we will implement our U-Net! We have written some of it for you - follow the steps below to fill in the missing parts.</p>
 #     <ol>
-#         <li>Declare a list of encoder (left) and decoder (right) ConvPasses. Carefully consider the input and output feature maps for each ConvPass!</li>
+#         <li>Declare a list of encoder (left) and decoder (right) ConvBlocks. Carefully consider the input and output feature maps for each ConvPass!</li>
 #         <li>Declare an Upsample, Downsample, CropAndConcat, and OutputConv block.</li>
 #         <li>Implement the <code style="color: black">forward</code> function, applying the modules you declared above in the proper order.</li>
 #         </ol>
