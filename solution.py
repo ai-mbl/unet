@@ -1119,25 +1119,8 @@ def train(
             break
 
 
-# %% [markdown] tags=[]
-"""
-The next two cells start tensorboard.
-<div class="alert alert-warning">
-If you are using VSCode and a remote server, you will need to forward the port to view the tensorboard. <br>
-Take note of the port number was assigned in the previous cell.(i.e <code style="color: black"> http://localhost:{port_number_assigned}</code>) <br>
-
-Locate the your VSCode terminal and select the <code style="color: black">Ports</code> tab <br>
-<ul>
-<li>Add a new port with the <code style="color: black">port_number_assigned</code>
-</ul>
-Click on the link to view the tensorboard and it should open in your browser.
-</div>
-<div class="alert alert-warning">
-If you launched jupyter lab from ssh terminal, add <code style="color: black">--host &lt;your-server-name&gt;</code> to the tensorboard command below. <code style="color: black">&lt;your-server-name&gt;</code> is the address of your compute node that ends in amazonaws.com.
-
-</div>
-"""
-
+# %% [markdown]
+# The next two cells start tensorboard.
 
 # %% tags=[]
 # Function to find an available port
@@ -1164,6 +1147,24 @@ def launch_tensorboard(log_dir):
 # %% tags=[]
 # Launch tensorboard and click on the link to view the logs.
 tensorboard_process = launch_tensorboard("unet_runs")
+
+# %% [markdown] tags=[]
+"""
+<div class="alert alert-warning">
+If you are using VSCode and a remote server, you will need to forward the port to view the tensorboard. <br>
+Take note of the port number was assigned in the previous cell.(i.e <code style="color: black"> http://localhost:{port_number_assigned}</code>) <br>
+
+Locate the your VSCode terminal and select the <code style="color: black">Ports</code> tab <br>
+<ul>
+<li>Add a new port with the <code style="color: black">port_number_assigned</code>
+</ul>
+Click on the link to view the tensorboard and it should open in your browser.
+</div>
+<div class="alert alert-warning">
+If you launched jupyter lab from ssh terminal, add <code style="color: black">--host &lt;your-server-name&gt;</code> to the tensorboard command below. <code style="color: black">&lt;your-server-name&gt;</code> is the address of your compute node that ends in amazonaws.com.
+
+</div>
+"""
 
 # %% [markdown] tags=[]
 # <div class="alert alert-block alert-info">
