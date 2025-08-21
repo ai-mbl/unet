@@ -588,7 +588,11 @@ apply_and_show_random_image(out_conv, dataset)
 #     <h4>Task 6: U-Net Implementation</h4>
 #     <p>Now we will implement our U-Net! We have written some of it for you - follow the steps below to fill in the missing parts.</p>
 #     <ol>
-#         <li>Declare a list of encoder (left) and decoder (right) ConvBlocks. Carefully consider the input and output feature maps for each ConvPass!</li>
+#         <li>Declare a list of encoder (left) and decoder (right) ConvBlocks. Carefully consider the input and output feature maps for each ConvPass!
+#             <ul>
+#                 <li><strong>Hint:</strong> Consider implementing helper functions to calculate the encoder and decoder blocks separately - this will make your code more readable and easier to debug.</li>
+#             </ul>
+#         </li>
 #         <li>Declare an Upsample, Downsample, CropAndConcat, and OutputConv block.</li>
 #         <li>Implement the <code style="color: black">forward</code> function, applying the modules you declared above in the proper order.</li>
 #         </ol>
@@ -661,7 +665,8 @@ class UNet(torch.nn.Module):
         # TASK 6.1A: Initialize list here
         # Loop through each level of the encoder from top (level=0) to bottom (level=self.depth - 1)
         for level in range(self.depth): 
-            # conv = 
+            input_features,output_features = ...
+            conv =  ...
             # Adding conv module to the list
             self.left_convs.append(conv)
         # right convolutional passes
@@ -670,7 +675,8 @@ class UNet(torch.nn.Module):
         # Loop through each level of the decoder from top (level=0) to one above bottom (level=self.depth - 2)
         for level in range(self.depth - 1):
             # Initialize conv module
-            # conv = 
+            input_features,output_features = ...
+            conv = ... 
             # Adding conv module to the list
             self.right_convs.append(conv)
         
@@ -693,6 +699,19 @@ class UNet(torch.nn.Module):
         # TASK 6.3D: Apply the final convolution and return the output
         return
 
+    def compute_fmaps_encoder(self, level: int) -> tuple[int, int]:
+        """Compute the number of input and output feature maps for
+        a conv block at a given level of the UNet encoder (left side).
+        """
+        return ...
+    
+    def compute_fmaps_decoder(self, level: int) -> tuple[int, int]:
+        """Compute the number of input and output feature maps for a conv block
+        at a given level of the UNet decoder (right side).
+        """
+       
+        return ...
+        
 
 # %% tags=["solution"]
 class UNet(torch.nn.Module):
