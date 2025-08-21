@@ -106,11 +106,14 @@ class TestCropAndConcat:
         small_tensor = torch.zeros((12, 5, 13, 18))
         ccmod = self.ccmodule()
         out_tensor = ccmod(big_tensor, small_tensor)
-        expected_tensor = torch.cat(
+        expected_tensor_1 = torch.cat(
+            [torch.ones(12, 14, 13, 18), torch.zeros(12, 5, 13, 18)], dim=1
+        )
+        expected_tensor_2 = torch.cat(
             [torch.ones(12, 14, 13, 18), torch.zeros(12, 5, 13, 18)], dim=1
         )
         msg = "Your CropAndConcat node does not give the expected output"
-        assert torch.equal(out_tensor, expected_tensor), msg
+        assert torch.equal(out_tensor, expected_tensor_1) or torch.equal(out_tensor, expected_tensor_2), msg
 
     def run(self):
         self.test_crop()
