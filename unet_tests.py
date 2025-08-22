@@ -130,9 +130,22 @@ class TestOutputConv:
         tensor_out = outconv(tensor)
         msg = "The output shape of your output conv is not right."
         assert tensor_out.shape == torch.Size((30, 24, 17)), msg
+    
+    def test_activation(self) -> None:
+        outconv = self.outconvmodule(3, 30, activation=None)
+        tensor = torch.ones((3, 24, 17))
+        try:
+            outconv(tensor)
+        except TypeError as e:
+            if str(e) != "'NoneType' object is not callable":
+                raise e
+            else:
+                msg = "Make sure you cover the case when activation is None."
+                assert False, msg
 
     def run(self):
         self.test_channels()
+        self.test_activation()
         print("TESTS PASSED")
 
 
