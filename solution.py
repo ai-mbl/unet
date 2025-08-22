@@ -283,7 +283,8 @@ apply_and_show_random_image(down, dataset)
 #     <ol>
 #         <li>Declare the submodules you want to use in the <code style="color: black">__init__</code> function. Because you will always be calling four submodules in sequence (<a href=https://pytorch.org/docs/stable/generated/torch.nn.Conv2d.html#torch.nn.Conv2d>torch.nn.Conv2d</a>, <a href=https://pytorch.org/docs/stable/generated/torch.nn.ReLU.html#torch.nn.ReLU>torch.nn.ReLU</a>, Conv2d, ReLU), you can use <a href=https://pytorch.org/docs/stable/generated/torch.nn.Sequential.html>torch.nn.Sequential</a> to hold the convolutions and ReLUs.</li>
 #         <li>Call the modules in the forward function. If you used <code style="color: black">torch.nn.Sequential</code> in step 1, you only need to call the Sequential module, but if not, you can call the Conv2d and ReLU Modules explicitly.</li>
-#     </ol>
+#         <li>Visualize the output and maybe rerun the cell to see how the output changes. Can you explain what you see?</li>
+# </ol>
 # </div>
 #
 # If you get stuck, refer back to the <a href=https://pytorch.org/docs/stable/notes/modules.html>Module</a> documentation for hints and examples of how to define a PyTorch Module.
@@ -590,7 +591,7 @@ apply_and_show_random_image(out_conv, dataset)
 #     <ol>
 #         <li>Declare a list of encoder (left) and decoder (right) ConvBlocks. Carefully consider the input and output feature maps for each ConvPass!
 #             <ul>
-#                 <li><strong>Hint:</strong> Consider implementing helper functions to calculate the encoder and decoder blocks separately - this will make your code more readable and easier to debug.</li>
+#                 <li><strong>Hint:</strong> We provided scaffolding to implement helper functions to calculate the encoder and decoder blocks separately - this will make your code more readable. But feel free to ignore them if you find it confusing.</li>
 #             </ul>
 #         </li>
 #         <li>Declare an Upsample, Downsample, CropAndConcat, and OutputConv block.</li>
@@ -702,16 +703,32 @@ class UNet(torch.nn.Module):
     def compute_fmaps_encoder(self, level: int) -> tuple[int, int]:
         """Compute the number of input and output feature maps for
         a conv block at a given level of the UNet encoder (left side).
+
+        Args:
+            level (int): The level of the U-Net which we are computing
+            the feature maps for. Level 0 is the input level, level 1 is
+            the first downsampled layer, and level=depth - 1 is the bottom layer.
+
+        Output (tuple[int, int]): The number of input and output feature maps
+            of the encoder convolutional pass in the given level.
         """
-        return ...
-    
+        pass
+
     def compute_fmaps_decoder(self, level: int) -> tuple[int, int]:
         """Compute the number of input and output feature maps for a conv block
-        at a given level of the UNet decoder (right side).
+        at a given level of the UNet decoder (right side). Note:
+        The bottom layer (depth - 1) is considered an "encoder" conv pass,
+        so this function is only valid up to depth - 2.
+
+        Args:
+            level (int): The level of the U-Net which we are computing
+            the feature maps for. Level 0 is the input level, level 1 is
+            the first downsampled layer, and level=depth - 1 is the bottom layer.
+
+        Output (tuple[int, int]): The number of input and output feature maps
+            of the encoder convolutional pass in the given level.
         """
-       
-        return ...
-        
+        pass    
 
 # %% tags=["solution"]
 class UNet(torch.nn.Module):
@@ -1245,8 +1262,8 @@ for epoch in range(n_epochs):
 #
 # Congratulations! You trained your first UNet that you implemented all by yourself!
 #
-# We will keep using this U-Net throughout the rest of the exercises. Whenever you see an import like `import dlmbl-unet` or
-# `from dlmbl-unet import UNet` it will be importing from [this repository](https://github.com/dlmbl/dlmbl-unet) which contains the solution to this notebook as a package (including the bonus exercises so don't peek just yet if you wanna solve the bonus too).
+# We will keep using this U-Net throughout the rest of the exercises. Whenever you see an import like `import dlmbl_unet` or
+# `from dlmbl_unet import UNet` it will be importing from [this repository](https://github.com/dlmbl/dlmbl-unet) which contains the solution to this notebook as a package (including the bonus exercises so don't peek just yet if you wanna solve the bonus too).
 # </div>
 
 # %% [markdown] tags=[]
